@@ -1,0 +1,19 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: transparent;
+  pointer-events: none;
+}
+
+.critter {
+  position: fixed;
+  font-size: 40px;
+  line-height: 48px;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+  z-index: 9999;
+}

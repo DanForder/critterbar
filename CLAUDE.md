@@ -1,73 +1,76 @@
 # Critterbar
 
-A macOS menu bar app that puts emoji critters on your screen. They walk along screen edges, pause to sniff, and can be added/removed from the menu bar.
+A macOS menu bar app (Tauri v2) where emoji critters walk along your screen edges, pause to sniff, and can be added/removed from the 🐾 tray menu.
 
 ## Build & Test
 
 ```bash
-# Build
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift build
+# Install deps (first time only)
+npm install
+npx playwright install webkit
 
-# Run unit tests (18 tests)
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift test
+# Dev server (browser preview at localhost:1420)
+npm run dev
 
-# Build app bundle (creates .build/debug/Critterbar.app)
-./bundle.sh
+# Full Tauri app (tray menu, transparent overlay)
+npm run tauri:dev
 
-# Run the app
-open .build/debug/Critterbar.app
+# Unit tests (17 tests — critter logic)
+npx vitest run
 
-# Run full verification suite (build + unit tests + bundle + e2e)
+# E2E tests with video recording (7 tests — Playwright against Vite dev server)
+npx playwright test
+
+# Full verification suite (build + unit tests + e2e)
 ./verify.sh
 
-# Run just the e2e test (AppleScript menu interaction + screenshots)
-./e2e-test.sh
-```
+# Build production .app
+npm run tauri:build
 
-**Important**: Use `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` prefix for all swift commands. The default Command Line Tools toolchain doesn't include XCTest.
+# Install to /Applications
+./install.sh
+```
 
 ## Architecture
 
-- **CritterbarCore** (library target): Pure logic, no AppKit. Fully testable.
-  - `Critter.swift` — Single critter model with edge-walking movement, sniff pauses, boundary clamping
-  - `CritterManager.swift` — Manages collection of critters, drives updates
-- **Critterbar** (executable target): AppKit UI layer, depends on CritterbarCore
-  - `main.swift` — App entry point, parses `--smoke-test` and `--visual-test` flags
-  - `AppDelegate.swift` — Sets up menu bar, overlay windows, 30fps update loop, smoke/visual tests
-  - `StatusBarController.swift` — Menu bar icon (🐾) with Add Cat/Dog/Bird, Remove All, Quit
-  - `OverlayWindowController.swift` — Transparent click-through floating windows, one per screen
-  - `CritterView.swift` — NSTextField subclass rendering emoji at critter position (48x48, 40pt font)
-- **CritterbarTests** (test target): XCTest suite for CritterbarCore
+### Frontend (src/)
+- `critter.ts` — Critter model: edge-walking, sniff pauses, corner nudge. Pure logic, no DOM.
+- `critterManager.ts` — Manages collection of critters, drives updates via boundsProvider
+- `renderer.ts` — Creates/updates DOM elements (divs with emoji). Each div has `data-critter-type`, `data-edge`, `data-state` attributes for Playwright assertions.
+- `main.ts` — Animation loop (requestAnimationFrame), Tauri event listeners, exposes `window.critterbar` API
+- `style.css` — Transparent body, fixed-position critter divs, pointer-events: none
+
+### Backend (src-tauri/)
+- `lib.rs` — Tray menu (Add Cat/Dog/Bird, Remove All, Quit), emits events to frontend. Sets activation policy to Accessory (no dock icon). Configures transparent click-through window.
+- `tauri.conf.json` — macOSPrivateApi for transparency, fullscreen borderless window, always on top
+
+### Tests
+- `tests/unit/` — Vitest: critter movement, edges, sniffing, bounds, manager add/remove
+- `tests/e2e/` — Playwright: adds critters via `window.critterbar`, asserts DOM positions on edges, checks movement, remove all, corner oscillation. **Records video** to `test-results/`.
 
 ## Critter Behavior
 
-- Critters walk along screen edges (bottom, right, top, left) going clockwise or counterclockwise
-- They turn corners when reaching the end of an edge
-- Every 3-8 seconds they pause for 1-3 seconds (sniffing), then resume walking
-- Each critter type has a different speed: cat (25), dog (35), bird (45) pixels/second
-- Critters use 48x48 pixel frames on screen edges
+- Critters walk along screen edges (bottom → right → top → left, clockwise or counterclockwise)
+- Corner transitions use 2px nudge to prevent oscillation
+- Sniff pause: every 3-8s, pauses for 1-3s, then resumes
+- Speeds: cat 25, dog 35, bird 45 px/s
+- Frame size: 48x48px, font-size: 40px
 
-## Verification Suite (verify.sh)
+## Playwright E2E — Self-Verification for Ralph
 
-The verification suite runs 3 layers:
-1. **Build check** — `swift build` compilation
-2. **Unit tests** — 18 XCTest tests for Critter model and CritterManager
-3. **E2E test** (e2e-test.sh) — Full AppleScript-driven test that:
-   - Launches the .app bundle
-   - Clicks the 🐾 menu bar to add Cat, Dog, Bird via AppleScript
-   - Takes screenshots at each step (saved to /tmp/critterbar-e2e/)
-   - Captures cropped edge-region screenshots for visual inspection
-   - Verifies overlay windows exist
-   - Clicks Remove All, then Quit via the menu
-   - Verifies clean exit
+Playwright tests run against the Vite dev server (not Tauri). This gives:
+- Full DOM access to critter divs
+- `data-*` attribute assertions
+- Video recording of every test run
+- The Ralph loop runs `./verify.sh`, gets text PASS/FAIL output
 
-**Accessibility**: The e2e test requires osascript accessibility permissions (System Settings > Privacy & Security > Accessibility). These are already enabled.
+`window.critterbar` API (exposed on window for Playwright):
+- `addCritter(type)` — add a critter ("cat", "dog", "bird")
+- `removeAll()` — remove all critters
+- `getCritters()` — get critter state array
 
-## App Bundle
+## PRD & Ralph Loop
 
-`bundle.sh` creates `Critterbar.app` with `LSUIElement: true` (no dock icon, menu bar only).
-
-## PRD & Progress
-
-See `PRD.md` for the full feature roadmap. See `progress.txt` for completed work.
-The Ralph loop (`ralph-once.sh` / `afk-ralph.sh`) picks tasks from the PRD and implements them incrementally.
+See `PRD.md` for feature roadmap. See `progress.txt` for completed work.
+- `./ralph-once.sh` — single iteration, human-in-the-loop
+- `./afk-ralph.sh 10` — autonomous loop, 10 iterations

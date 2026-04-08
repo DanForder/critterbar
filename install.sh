@@ -1,23 +1,12 @@
 #!/bin/bash
 set -e
 
-APP_NAME="Critterbar"
-INSTALL_DIR="/Applications"
+echo "Building Tauri app..."
+npx tauri build 2>&1 | tail -5
 
-echo "Building..."
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swift build 2>&1 | tail -1
+echo "Installing to /Applications..."
+rm -rf /Applications/Critterbar.app
+cp -R src-tauri/target/release/bundle/macos/Critterbar.app /Applications/Critterbar.app
 
-echo "Bundling..."
-./bundle.sh 2>&1 | tail -1
-
-echo "Installing to $INSTALL_DIR..."
-mkdir -p "$INSTALL_DIR"
-
-# Remove old version if present
-rm -rf "$INSTALL_DIR/$APP_NAME.app"
-
-# Copy new build
-cp -R ".build/debug/$APP_NAME.app" "$INSTALL_DIR/$APP_NAME.app"
-
-echo "Done! $APP_NAME installed to $INSTALL_DIR/$APP_NAME.app"
-echo "You can find it in Spotlight, Launchpad, or Finder → Applications."
+echo "Done! Critterbar installed to /Applications/Critterbar.app"
+echo "Find it in Spotlight, Launchpad, or Finder → Applications."

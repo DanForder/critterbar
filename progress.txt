@@ -1,11 +1,17 @@
 ## Progress Log
 
-### 2026-04-08 — Phase 1: Core App (v0) Complete
-- Created Swift Package with CritterbarCore (library) + Critterbar (executable) targets
-- Implemented Critter model with random wandering, direction changes, boundary clamping
-- Implemented CritterManager to manage collection of critters
-- Created transparent overlay windows (one per screen, click-through, floating)
-- Added menu bar status item (🐾) with Add Cat/Dog/Bird, Remove All, Quit
-- 30fps timer-based update loop
-- 14 unit tests passing (7 CritterTests + 7 CritterManagerTests)
-- Smoke test mode via --smoke-test flag
+### 2026-04-08 — Phase 1: Core App (Swift v0)
+- Created Swift Package with CritterbarCore library + Critterbar executable
+- Menu bar icon, transparent overlay windows, random wandering critters
+- 18 unit tests, AppleScript e2e test, smoke test mode
+
+### 2026-04-09 — Tauri v2 Rewrite
+- Rewrote entire app from Swift/AppKit to Tauri v2 + TypeScript + Vite
+- Ported critter logic: edge-walking, sniff pauses, corner nudge prevention
+- Rust backend: system tray menu, transparent click-through window, no dock icon
+- DOM-based renderer with data attributes for Playwright assertions
+- 17 Vitest unit tests for critter model and manager
+- 7 Playwright e2e tests with video recording (tests run against Vite dev server)
+- verify.sh runs build + unit tests + e2e pipeline
+- Ralph loop scripts (ralph-once.sh, afk-ralph.sh) wired to verify.sh
+- install.sh builds and copies .app to /Applications

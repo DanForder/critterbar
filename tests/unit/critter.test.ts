@@ -1,0 +1,188 @@
+import { describe, it, expect } from "vitest";
+import { Critter, CritterBounds, CRITTER_TYPES, CRITTER_SIZE } from "../../src/critter";
+
+describe("Critter", () => {
+  const bounds: CritterBounds = { minX: 0, minY: 0, maxX: 1000, maxY: 800 };
+
+  it("initializes with correct type and position", () => {
+    const c = new Critter("cat", 100, 200);
+    expect(c.type).toBe("cat");
+    expect(c.x).toBe(100);
+    expect(c.y).toBe(200);
+    expect(c.emoji).toBe("🐱");
+  });
+
+  it("has correct emoji for each type", () => {
+    expect(CRITTER_TYPES.cat.emoji).toBe("🐱");
+    expect(CRITTER_TYPES.dog.emoji).toBe("🐶");
+    expect(CRITTER_TYPES.bird.emoji).toBe("🐦");
+  });
+
+  it("has correct speed for each type", () => {
+    expect(CRITTER_TYPES.cat.speed).toBe(25);
+    expect(CRITTER_TYPES.dog.speed).toBe(35);
+    expect(CRITTER_TYPES.bird.speed).toBe(45);
+  });
+
+  it("assigns unique IDs", () => {
+    const c1 = new Critter("cat", 0, 0);
+    const c2 = new Critter("cat", 0, 0);
+    expect(c1.id).not.toBe(c2.id);
+  });
+
+  it("snaps to edge", () => {
+    const c = new Critter("dog", 500, 400);
+    c.snapToEdge(bounds);
+    const onEdge =
+      c.y === bounds.minY ||
+      c.y === bounds.maxY - CRITTER_SIZE ||
+      c.x === bounds.minX ||
+      c.x === bounds.maxX - CRITTER_SIZE;
+    expect(onEdge).toBe(true);
+  });
+
+  it("walks along edge", () => {
+    const c = new Critter("dog", 500, 0);
+    c.snapToEdge(bounds);
+
+    for (let i = 0; i < 100; i++) {
+      c.update(1 / 30, bounds);
+    }
+
+    const onEdge =
+      c.y === bounds.minY ||
+      c.y === bounds.maxY - CRITTER_SIZE ||
+      c.x === bounds.minX ||
+      c.x === bounds.maxX - CRITTER_SIZE;
+    expect(onEdge).toBe(true);
+  });
+
+  it("stays on edge after many updates", () => {
+    const small: CritterBounds = { minX: 0, minY: 0, maxX: 500, maxY: 500 };
+    const c = new Critter("bird", 100, 0);
+    c.snapToEdge(small);
+
+    for (let i = 0; i < 2000; i++) {
+      c.update(1 / 30, small);
+    }
+
+    const onEdge =
+      c.y === small.minY ||
+      c.y === small.maxY - CRITTER_SIZE ||
+      c.x === small.minX ||
+      c.x === small.maxX - CRITTER_SIZE;
+    expect(onEdge).toBe(true);
+  });
+
+  it("stays within bounds", () => {
+    const small: CritterBounds = { minX: 0, minY: 0, maxX: 200, maxY: 200 };
+    const c = new Critter("cat", 100, 0);
+    c.snapToEdge(small);
+
+    for (let i = 0; i < 2000; i++) {
+      c.update(1 / 30, small);
+    }
+
+    expect(c.x).toBeGreaterThanOrEqual(small.minX);
+    expect(c.x).toBeLessThanOrEqual(small.maxX);
+    expect(c.y).toBeGreaterThanOrEqual(small.minY);
+    expect(c.y).toBeLessThanOrEqual(small.maxY);
+  });
+
+  it("enters sniffing state eventually", () => {
+    const c = new Critter("cat", 500, 0);
+    c.snapToEdge(bounds);
+
+    let didSniff = false;
+    for (let i = 0; i < 450; i++) {
+      c.update(1 / 30, bounds);
+      if (c.state.kind === "sniffing") {
+        didSniff = true;
+        break;
+      }
+    }
+
+    expect(didSniff).toBe(true);
+  });
+
+  it("never oscillates between edges at corners (all types, small bounds)", () => {
+    // Run each critter type many times on a tiny viewport to force frequent corners
+    const small: CritterBounds = { minX: 0, minY: 0, maxX: 150, maxY: 150 };
+    const types: Array<"cat" | "dog" | "bird"> = ["cat", "dog", "bird"];
+
+    for (const type of types) {
+      // Run 20 critters to cover different random edge/direction combos
+      for (let trial = 0; trial < 20; trial++) {
+        const c = new Critter(type, 75, 75);
+        c.snapToEdge(small);
+
+        const edges: string[] = [];
+        // Simulate 5 minutes at 60fps = 18000 frames
+        for (let i = 0; i < 18000; i++) {
+          c.update(1 / 60, small);
+          edges.push(c.edge);
+        }
+
+        // Check for A→B→A oscillation pattern (same edge two frames apart, different in between)
+        let oscillations = 0;
+        for (let i = 2; i < edges.length; i++) {
+          if (edges[i] === edges[i - 2] && edges[i] !== edges[i - 1]) {
+            oscillations++;
+            if (oscillations > 3) {
+              // Fail fast with useful info
+              expect.fail(
+                `${type} trial ${trial}: oscillation at frame ${i}: ` +
+                `${edges[i-2]}→${edges[i-1]}→${edges[i]} (${oscillations} total)`
+              );
+            }
+          }
+        }
+      }
+    }
+  });
+
+  it("no oscillation with variable/spiking deltaTime", () => {
+    const small: CritterBounds = { minX: 0, minY: 0, maxX: 150, maxY: 150 };
+    const types: Array<"cat" | "dog" | "bird"> = ["cat", "dog", "bird"];
+
+    for (const type of types) {
+      for (let trial = 0; trial < 10; trial++) {
+        const c = new Critter(type, 75, 75);
+        c.snapToEdge(small);
+
+        const edges: string[] = [];
+        for (let i = 0; i < 5000; i++) {
+          // Random deltaTime: mostly normal, occasionally spiking
+          const dt = Math.random() < 0.05
+            ? 0.1 + Math.random() * 0.5  // spike: 100-600ms
+            : 1 / 60 + (Math.random() - 0.5) * 0.01; // normal: ~16ms ± 5ms
+          c.update(dt, small);
+          edges.push(c.edge);
+        }
+
+        let oscillations = 0;
+        for (let i = 2; i < edges.length; i++) {
+          if (edges[i] === edges[i - 2] && edges[i] !== edges[i - 1]) {
+            oscillations++;
+            if (oscillations > 3) {
+              expect.fail(
+                `${type} trial ${trial}: oscillation at frame ${i}: ` +
+                `${edges[i-2]}→${edges[i-1]}→${edges[i]} (${oscillations} total)`
+              );
+            }
+          }
+        }
+      }
+    }
+  });
+
+  it("display emoji stays consistent", () => {
+    const c = new Critter("cat", 100, 0);
+    expect(c.emoji).toBe("🐱");
+
+    for (let i = 0; i < 1000; i++) {
+      c.update(1 / 30, bounds);
+      expect(c.emoji).toBe("🐱");
+    }
+  });
+});
