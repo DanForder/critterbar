@@ -24,6 +24,15 @@
     ],
     "macOS": {
       "minimumSystemVersion": "13.0"
+    },
+    "createUpdaterArtifacts": "v1Compatible"
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/DanForder/critterbar/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM4ODIyMTIyNkI3NTA5N0MKUldSOENYVnJJaUdDT0twVGhiSjZKU2h0eU5JMjJnWTlueVJmSThDTloyQzFKbmcyNlQxQWg2YnYK"
     }
   }
 }

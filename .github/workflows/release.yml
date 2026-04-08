@@ -1,0 +1,76 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Tauri app (aarch64)
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npx tauri build --target aarch64-apple-darwin
+
+      - name: Build Tauri app (x86_64)
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npx tauri build --target x86_64-apple-darwin
+
+      - name: Generate latest.json
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          AARCH64_SIG=$(cat src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Critterbar.app.tar.gz.sig)
+          X86_64_SIG=$(cat src-tauri/target/x86_64-apple-darwin/release/bundle/macos/Critterbar.app.tar.gz.sig)
+          cat > latest.json << EOF
+          {
+            "version": "${VERSION}",
+            "notes": "Critterbar ${VERSION}",
+            "pub_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "platforms": {
+              "darwin-aarch64": {
+                "signature": "${AARCH64_SIG}",
+                "url": "https://github.com/DanForder/critterbar/releases/download/${GITHUB_REF_NAME}/Critterbar_aarch64.app.tar.gz"
+              },
+              "darwin-x86_64": {
+                "signature": "${X86_64_SIG}",
+                "url": "https://github.com/DanForder/critterbar/releases/download/${GITHUB_REF_NAME}/Critterbar_x86_64.app.tar.gz"
+              }
+            }
+          }
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Critterbar.app.tar.gz
+            src-tauri/target/x86_64-apple-darwin/release/bundle/macos/Critterbar.app.tar.gz
+            src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
+            src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg
+            latest.json

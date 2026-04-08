@@ -42,6 +42,7 @@ fn set_tray_title(app: tauri::AppHandle, title: String) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![set_critter_active, set_add_random_enabled, set_tray_title])
         .setup(|app| {
             // Hide from dock (menu bar only)

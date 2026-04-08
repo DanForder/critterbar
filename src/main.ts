@@ -124,6 +124,23 @@ async function setupTauriEvents() {
 
 setupTauriEvents();
 
+// Check for updates on startup (only in Tauri)
+async function checkForUpdates() {
+  if (!(window as any).__TAURI_INTERNALS__) return;
+  try {
+    const { check } = await import("@tauri-apps/plugin-updater");
+    const update = await check();
+    if (update) {
+      // Download and install silently — takes effect on next app launch
+      await update.downloadAndInstall();
+    }
+  } catch {
+    // Update check failed silently — that's fine
+  }
+}
+
+checkForUpdates();
+
 // Animation loop
 let lastTime = performance.now();
 
