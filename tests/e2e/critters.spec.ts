@@ -174,6 +174,27 @@ test.describe("Critterbar", () => {
     await expect(page.locator("[data-critter-type]")).toHaveCount(8);
   });
 
+  test("critter rotation matches its edge", async ({ page }) => {
+    const edgeRotations: Record<string, string> = {
+      bottom: "0deg",
+      right: "90deg",
+      top: "180deg",
+      left: "270deg",
+    };
+
+    await page.evaluate(() => (window as any).critterbar.addCritter("cat"));
+    const critter = page.locator('[data-critter-type="cat"]');
+
+    // Sample edge and rotation several times to cover different edges
+    for (let i = 0; i < 5; i++) {
+      const edge = await critter.getAttribute("data-edge");
+      expect(edge).not.toBeNull();
+      const rotation = await critter.evaluate((el) => getComputedStyle(el).rotate);
+      expect(rotation).toBe(edgeRotations[edge!]);
+      await page.waitForTimeout(400);
+    }
+  });
+
   test("no rapid edge flicking at corners", async ({ page }) => {
     // Use a small viewport so critters hit corners quickly
     await page.setViewportSize({ width: 200, height: 200 });

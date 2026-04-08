@@ -23,8 +23,8 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [x] Critter count shown in menu bar next to the 🐾 icon (e.g. "🐾 3")
 
 ## Phase 2b: Quick Improvements
-- [ ] Emoji rotation: critters rotate so their feet always face the screen edge they're walking on (bottom=0°, right=90°, top=180°, left=270° via CSS transform rotate)
-- [ ] "Add All" menu item that adds all critter types at once
+- [x] Emoji rotation: critters rotate so their feet always face the screen edge they're walking on (bottom=0°, right=90°, top=180°, left=270° via CSS transform rotate)
+- [x] "Add All" menu item that adds all critter types at once
 - [ ] Tray menu stays open after clicking an item (so user can add multiple critters in quick succession without reopening the menu)
 
 ## Phase 3: Better Movement & Behaviour
@@ -47,6 +47,7 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [ ] Idle/sniff/sleep sprite variations
 - [ ] Menu bar notch awareness: critters walk right up to the camera notch and around it on notched MacBooks, and to the full top edge on non-notched Macs
 - [ ] Custom app icon for the tray (replace default icon with a proper critter icon)
+- [ ] Custom DMG installer: branded background image with "drag to Applications" arrow, positioned app + Applications icons, custom volume icon
 
 ## Phase 6: Advanced Features
 - [ ] Critter names: each critter gets a randomly generated name shown on hover

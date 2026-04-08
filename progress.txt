@@ -74,3 +74,10 @@
 - Speed changes every 5-15s of simulated time, independent of sniff state
 - Added 2 unit tests: "speed varies over simulated time" and "speed stays within 0.5x–1.5x of base speed"
 - Verification: 28 unit tests + 11 e2e tests, all passing
+
+### 2026-04-09 — Phase 2b: Emoji Rotation
+- Added CSS `rotate` individual property rules per `data-edge` attribute in style.css
+- bottom=0deg, right=90deg, top=180deg, left=270deg — feet always face the screen edge
+- CSS `rotate` property composes independently with `transform`, so sniff-wiggle animation is unaffected
+- Added e2e test "critter rotation matches its edge" that samples edge+computed rotate style 5 times
+- Verification: 28 unit tests + 12 e2e tests, all passing
