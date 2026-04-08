@@ -15,11 +15,21 @@ Click the 🐾 in your menu bar to add critters.
 
 ## Install
 
+Download the latest DMG from [Releases](https://github.com/DanForder/critterbar/releases/latest) — pick **aarch64** for Apple Silicon (M1/M2/M3/M4) or **x64** for Intel.
+
+Since the app isn't notarized with Apple, macOS will block it on first run. To fix this, after dragging Critterbar to Applications, open Terminal and run:
+
+```bash
+xattr -cr /Applications/Critterbar.app
+```
+
+Then open Critterbar from Applications or Spotlight. It auto-updates when new versions are released.
+
+### From source
+
 ```bash
 ./install.sh
 ```
-
-Installs `Critterbar.app` to `/Applications`. Find it in Spotlight or Launchpad.
 
 ## Development
 
