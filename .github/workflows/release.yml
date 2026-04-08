@@ -39,6 +39,11 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npx tauri build --target x86_64-apple-darwin
 
+      - name: Rename artifacts per architecture
+        run: |
+          cp src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Critterbar.app.tar.gz Critterbar_aarch64.app.tar.gz
+          cp src-tauri/target/x86_64-apple-darwin/release/bundle/macos/Critterbar.app.tar.gz Critterbar_x86_64.app.tar.gz
+
       - name: Generate latest.json
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
@@ -69,8 +74,8 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
-            src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Critterbar.app.tar.gz
-            src-tauri/target/x86_64-apple-darwin/release/bundle/macos/Critterbar.app.tar.gz
+            Critterbar_aarch64.app.tar.gz
+            Critterbar_x86_64.app.tar.gz
             src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
             src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg
             latest.json

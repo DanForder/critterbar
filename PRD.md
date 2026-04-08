@@ -29,6 +29,7 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 
 ## Phase 3: Better Movement & Behaviour
 - [x] Variable speed: critters occasionally speed up or slow down naturally
+- [ ] Spread spawning: new critters spawn at the position on the edges furthest from all existing critters (maximise distance from nearest critter)
 - [ ] Sleep state: critters that haven't moved for a long time fall asleep (zzz overlay), wake up after a bit
 - [ ] Proximity awareness: critters notice when another critter is nearby (within ~100px)
 - [ ] Following behavior: some critter types follow others when close (e.g. dog follows cat)
