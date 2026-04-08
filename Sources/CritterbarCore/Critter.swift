@@ -133,15 +133,20 @@ public class Critter: Identifiable {
         let movement = speed * deltaTime
         let direction: Double = movingForward ? 1.0 : -1.0
 
+        // Nudge inward after corner transitions to prevent oscillation
+        let cornerNudge: Double = 2.0
+
         switch edge {
         case .bottom:
             x += movement * direction
             y = bounds.minY
             if x >= bounds.maxX - 48 {
                 x = bounds.maxX - 48
+                y = bounds.minY + cornerNudge
                 edge = movingForward ? .right : .left
             } else if x <= bounds.minX {
                 x = bounds.minX
+                y = bounds.minY + cornerNudge
                 edge = movingForward ? .left : .right
             }
 
@@ -150,9 +155,11 @@ public class Critter: Identifiable {
             x = bounds.maxX - 48
             if y >= bounds.maxY - 48 {
                 y = bounds.maxY - 48
+                x = bounds.maxX - 48 - cornerNudge
                 edge = movingForward ? .top : .bottom
             } else if y <= bounds.minY {
                 y = bounds.minY
+                x = bounds.maxX - 48 - cornerNudge
                 edge = movingForward ? .bottom : .top
             }
 
@@ -161,9 +168,11 @@ public class Critter: Identifiable {
             y = bounds.maxY - 48
             if x <= bounds.minX {
                 x = bounds.minX
+                y = bounds.maxY - 48 - cornerNudge
                 edge = movingForward ? .left : .right
             } else if x >= bounds.maxX - 48 {
                 x = bounds.maxX - 48
+                y = bounds.maxY - 48 - cornerNudge
                 edge = movingForward ? .right : .left
             }
 
@@ -172,9 +181,11 @@ public class Critter: Identifiable {
             x = bounds.minX
             if y <= bounds.minY {
                 y = bounds.minY
+                x = bounds.minX + cornerNudge
                 edge = movingForward ? .bottom : .top
             } else if y >= bounds.maxY - 48 {
                 y = bounds.maxY - 48
+                x = bounds.minX + cornerNudge
                 edge = movingForward ? .top : .bottom
             }
         }

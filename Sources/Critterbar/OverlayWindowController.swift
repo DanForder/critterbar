@@ -76,7 +76,12 @@ class OverlayWindowController {
 
     func updateCritterPositions(critters: [Critter]) {
         for critter in critters {
-            critterViews[critter.id]?.updatePosition(x: critter.x, y: critter.y, emoji: critter.displayEmoji)
+            let screenIndex = min(critter.screenIndex, windows.count - 1)
+            guard screenIndex >= 0, screenIndex < windows.count else { continue }
+            let windowOrigin = windows[screenIndex].frame.origin
+            let localX = critter.x - windowOrigin.x
+            let localY = critter.y - windowOrigin.y
+            critterViews[critter.id]?.updatePosition(x: localX, y: localY, emoji: critter.displayEmoji)
         }
     }
 }
