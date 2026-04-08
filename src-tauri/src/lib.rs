@@ -33,6 +33,15 @@ fn set_add_random_enabled(state: State<'_, MenuItems>, enabled: bool) {
 }
 
 #[tauri::command]
+fn set_add_all_enabled(state: State<'_, MenuItems>, enabled: bool) {
+    if let Ok(items) = state.0.lock() {
+        if let Some(item) = items.get("add-all") {
+            let _ = item.set_enabled(enabled);
+        }
+    }
+}
+
+#[tauri::command]
 fn set_tray_title(app: tauri::AppHandle, title: String) {
     if let Some(tray) = app.tray_by_id("main") {
         let _ = tray.set_title(Some(title.as_str()));
@@ -43,7 +52,7 @@ fn set_tray_title(app: tauri::AppHandle, title: String) {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![set_critter_active, set_add_random_enabled, set_tray_title])
+        .invoke_handler(tauri::generate_handler![set_critter_active, set_add_random_enabled, set_add_all_enabled, set_tray_title])
         .setup(|app| {
             // Hide from dock (menu bar only)
             #[cfg(target_os = "macos")]
@@ -109,6 +118,7 @@ pub fn run() {
             let add_frog    = MenuItem::with_id(app, "add-frog",    "Add Frog 🐸",    true, None::<&str>)?;
             let add_turtle  = MenuItem::with_id(app, "add-turtle",  "Add Turtle 🐢",  true, None::<&str>)?;
             let add_random  = MenuItem::with_id(app, "add-random",  "Add Random 🎲",  true, None::<&str>)?;
+            let add_all     = MenuItem::with_id(app, "add-all",     "Add All 🌟",     true, None::<&str>)?;
             let remove_all  = MenuItem::with_id(app, "remove-all",  "Remove All",     true, None::<&str>)?;
             let quit        = MenuItem::with_id(app, "quit",        "Quit",           true, None::<&str>)?;
 
@@ -131,6 +141,7 @@ pub fn run() {
             item_map.insert("add-frog".to_string(),       add_frog.clone());
             item_map.insert("add-turtle".to_string(),     add_turtle.clone());
             item_map.insert("add-random".to_string(),     add_random.clone());
+            item_map.insert("add-all".to_string(),        add_all.clone());
             app.manage(MenuItems(Mutex::new(item_map)));
 
             let menu = Menu::with_items(
@@ -154,6 +165,7 @@ pub fn run() {
                     &add_frog,
                     &add_turtle,
                     &add_random,
+                    &add_all,
                     &PredefinedMenuItem::separator(app)?,
                     &remove_all,
                     &PredefinedMenuItem::separator(app)?,
@@ -186,6 +198,7 @@ pub fn run() {
                         "add-frog"    => { let _ = app.emit("add-critter", "frog"); }
                         "add-turtle"  => { let _ = app.emit("add-critter", "turtle"); }
                         "add-random"  => { let _ = app.emit("add-random", ()); }
+                        "add-all"     => { let _ = app.emit("add-all", ()); }
                         "remove-all"  => { let _ = app.emit("remove-all", ()); }
                         "quit"        => { app.exit(0); }
                         _ => {}

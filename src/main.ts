@@ -27,11 +27,13 @@ async function updateCritterMenu(type: CritterTypeName, active: boolean): Promis
   }
 }
 
-async function updateAddRandomMenu(): Promise<void> {
+async function updateAddMenus(): Promise<void> {
   if (!(window as any).__TAURI_INTERNALS__) return;
   try {
     const { invoke } = await import("@tauri-apps/api/core");
-    await invoke("set_add_random_enabled", { enabled: manager.availableTypes().length > 0 });
+    const hasAvailable = manager.availableTypes().length > 0;
+    await invoke("set_add_random_enabled", { enabled: hasAvailable });
+    await invoke("set_add_all_enabled", { enabled: hasAvailable });
   } catch {
     // Not in Tauri context
   }
@@ -54,7 +56,7 @@ function addCritter(type: CritterTypeName): void {
   const critter = manager.addCritter(type);
   addCritterElement(critter);
   updateCritterMenu(type, true);
-  updateAddRandomMenu();
+  updateAddMenus();
   updateTrayTitle();
 }
 
@@ -63,7 +65,7 @@ function removeCritter(type: CritterTypeName): void {
   if (!critter) return;
   removeCritterElement(critter.id);
   updateCritterMenu(type, false);
-  updateAddRandomMenu();
+  updateAddMenus();
   updateTrayTitle();
 }
 
@@ -74,7 +76,7 @@ function removeAll(): void {
   for (const type of activeTypes) {
     updateCritterMenu(type, false);
   }
-  updateAddRandomMenu();
+  updateAddMenus();
   updateTrayTitle();
 }
 
@@ -83,6 +85,12 @@ function addRandom(): void {
   if (available.length === 0) return;
   const type = available[Math.floor(Math.random() * available.length)];
   addCritter(type);
+}
+
+function addAllCritters(): void {
+  for (const type of manager.availableTypes()) {
+    addCritter(type);
+  }
 }
 
 function getCritters() {
@@ -97,7 +105,7 @@ function getCritters() {
 }
 
 // Expose API for Playwright and Tauri events
-const critterbar = { addCritter, removeCritter, removeAll, getCritters, addRandom };
+const critterbar = { addCritter, removeCritter, removeAll, getCritters, addRandom, addAllCritters };
 (window as any).critterbar = critterbar;
 
 // Listen for Tauri tray events (only when running inside Tauri)
@@ -116,6 +124,9 @@ async function setupTauriEvents() {
     });
     listen("add-random", () => {
       addRandom();
+    });
+    listen("add-all", () => {
+      addAllCritters();
     });
   } catch {
     // Not running in Tauri — that's fine
