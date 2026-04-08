@@ -53,8 +53,9 @@ npm run tauri:build
 - Critters walk along screen edges (bottom → right → top → left, clockwise or counterclockwise)
 - Corner transitions use 2px nudge to prevent oscillation
 - Sniff pause: every 3-8s, pauses for 1-3s, then resumes
-- Speeds: cat 25, dog 35, bird 45 px/s
-- Frame size: 48x48px, font-size: 40px
+- Speeds: cat 12, dog 17, bird 22 px/s
+- Frame size: 24x24px, font-size: 20px
+- Sniff pause: every 3-8s, lasts 2-5s, with ±1px CSS wiggle animation
 
 ## Playwright E2E — Self-Verification for Ralph
 
