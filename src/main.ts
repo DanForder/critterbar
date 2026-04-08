@@ -130,8 +130,10 @@ let lastTime = performance.now();
 function tick(now: number) {
   const deltaTime = (now - lastTime) / 1000;
   lastTime = now;
-  manager.update(deltaTime);
-  updateCritterElements(manager.critters);
+  if (manager.count > 0) {
+    manager.update(deltaTime);
+    updateCritterElements(manager.critters);
+  }
   requestAnimationFrame(tick);
 }
 

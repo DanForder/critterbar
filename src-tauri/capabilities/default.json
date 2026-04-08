@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/nicegui/nicegui/main/capabilities.schema.json",
   "identifier": "default",
   "description": "Default capabilities for Critterbar",
   "windows": ["overlay"],
@@ -7,7 +6,6 @@
     "core:default",
     "core:window:default",
     "core:window:allow-set-ignore-cursor-events",
-    "shell:default",
     "core:event:default",
     "core:event:allow-listen",
     "core:event:allow-emit"

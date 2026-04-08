@@ -41,12 +41,12 @@ npm run tauri:build
 - `style.css` — Transparent body, fixed-position critter divs, pointer-events: none
 
 ### Backend (src-tauri/)
-- `lib.rs` — Tray menu (Add Cat/Dog/Bird, Remove All, Quit), emits events to frontend. Sets activation policy to Accessory (no dock icon). Configures transparent click-through window.
-- `tauri.conf.json` — macOSPrivateApi for transparency, fullscreen borderless window, always on top
+- `lib.rs` — Tray menu (8 critter types + Add Random + Remove All + Quit), Tauri commands for dynamic menu state (`set_critter_active`, `set_add_random_enabled`, `set_tray_title`). Sets NSFloatingWindowLevel via cocoa. Accessory activation policy (no dock icon).
+- `tauri.conf.json` — macOSPrivateApi for transparency, borderless window, always on top
 
 ### Tests
-- `tests/unit/` — Vitest: critter movement, edges, sniffing, bounds, manager add/remove
-- `tests/e2e/` — Playwright: adds critters via `window.critterbar`, asserts DOM positions on edges, checks movement, remove all, corner oscillation. **Records video** to `test-results/`.
+- `tests/unit/` — 28 Vitest tests: critter movement, edges, sniffing, bounds, speeds, oscillation, manager add/remove/hasType/availableTypes
+- `tests/e2e/` — 11 Playwright tests with video: critter visibility, edge positions, movement, corner stability, wiggle animation, addRandom, remove all. Videos saved to `test-results/`.
 
 ## Critter Behavior
 

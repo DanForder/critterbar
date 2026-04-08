@@ -3,5 +3,8 @@ dist/
 src-tauri/target/
 test-results/
 playwright-report/
-.build/
 *.tsbuildinfo
+.DS_Store
+.claude/
+.env
+.env.*
