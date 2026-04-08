@@ -77,6 +77,33 @@ describe("CritterManager", () => {
     }
   });
 
+  it("removeCritterByType removes the critter and returns it", () => {
+    const m = createManager();
+    m.addCritter("cat");
+    m.addCritter("dog");
+    const removed = m.removeCritterByType("cat");
+    expect(removed).toBeDefined();
+    expect(removed!.type).toBe("cat");
+    expect(m.count).toBe(1);
+    expect(m.hasType("cat")).toBe(false);
+    expect(m.hasType("dog")).toBe(true);
+  });
+
+  it("removeCritterByType returns undefined for missing type", () => {
+    const m = createManager();
+    m.addCritter("dog");
+    const removed = m.removeCritterByType("cat");
+    expect(removed).toBeUndefined();
+    expect(m.count).toBe(1);
+  });
+
+  it("does not add a duplicate critter type", () => {
+    const m = createManager();
+    m.addCritter("cat");
+    expect(m.hasType("cat")).toBe(true);
+    expect(m.hasType("dog")).toBe(false);
+  });
+
   it("works without explicit bounds provider", () => {
     const m = new CritterManager();
     const c = m.addCritter("cat");
@@ -85,5 +112,28 @@ describe("CritterManager", () => {
       m.update(1 / 30);
     }
     expect(c).toBeDefined();
+  });
+
+  it("availableTypes returns all 8 types when no critters are active", () => {
+    const m = createManager();
+    expect(m.availableTypes().length).toBe(8);
+  });
+
+  it("availableTypes excludes active critter types", () => {
+    const m = createManager();
+    m.addCritter("cat");
+    m.addCritter("dog");
+    const available = m.availableTypes();
+    expect(available).not.toContain("cat");
+    expect(available).not.toContain("dog");
+    expect(available.length).toBe(6);
+  });
+
+  it("availableTypes is empty when all types are active", () => {
+    const m = createManager();
+    for (const type of ["cat", "dog", "bird", "rabbit", "hamster", "fox", "frog", "turtle"] as const) {
+      m.addCritter(type);
+    }
+    expect(m.availableTypes().length).toBe(0);
   });
 });

@@ -16,12 +16,28 @@ describe("Critter", () => {
     expect(CRITTER_TYPES.cat.emoji).toBe("🐱");
     expect(CRITTER_TYPES.dog.emoji).toBe("🐶");
     expect(CRITTER_TYPES.bird.emoji).toBe("🐦");
+    expect(CRITTER_TYPES.rabbit.emoji).toBe("🐰");
+    expect(CRITTER_TYPES.hamster.emoji).toBe("🐹");
+    expect(CRITTER_TYPES.fox.emoji).toBe("🦊");
+    expect(CRITTER_TYPES.frog.emoji).toBe("🐸");
+    expect(CRITTER_TYPES.turtle.emoji).toBe("🐢");
   });
 
   it("has correct speed for each type", () => {
-    expect(CRITTER_TYPES.cat.speed).toBe(25);
-    expect(CRITTER_TYPES.dog.speed).toBe(35);
-    expect(CRITTER_TYPES.bird.speed).toBe(45);
+    expect(CRITTER_TYPES.cat.speed).toBe(12);
+    expect(CRITTER_TYPES.dog.speed).toBe(17);
+    expect(CRITTER_TYPES.bird.speed).toBe(22);
+    expect(CRITTER_TYPES.turtle.speed).toBe(5);
+    expect(CRITTER_TYPES.hamster.speed).toBe(9);
+    expect(CRITTER_TYPES.frog.speed).toBe(14);
+    expect(CRITTER_TYPES.rabbit.speed).toBe(20);
+    expect(CRITTER_TYPES.fox.speed).toBe(30);
+  });
+
+  it("fox is fastest, turtle is slowest", () => {
+    const speeds = Object.values(CRITTER_TYPES).map((t) => t.speed);
+    expect(CRITTER_TYPES.fox.speed).toBe(Math.max(...speeds));
+    expect(CRITTER_TYPES.turtle.speed).toBe(Math.min(...speeds));
   });
 
   it("assigns unique IDs", () => {
@@ -108,7 +124,7 @@ describe("Critter", () => {
   it("never oscillates between edges at corners (all types, small bounds)", () => {
     // Run each critter type many times on a tiny viewport to force frequent corners
     const small: CritterBounds = { minX: 0, minY: 0, maxX: 150, maxY: 150 };
-    const types: Array<"cat" | "dog" | "bird"> = ["cat", "dog", "bird"];
+    const types: Array<"cat" | "dog" | "bird" | "rabbit" | "hamster" | "fox" | "frog" | "turtle"> = ["cat", "dog", "bird", "rabbit", "hamster", "fox", "frog", "turtle"];
 
     for (const type of types) {
       // Run 20 critters to cover different random edge/direction combos
@@ -143,7 +159,7 @@ describe("Critter", () => {
 
   it("no oscillation with variable/spiking deltaTime", () => {
     const small: CritterBounds = { minX: 0, minY: 0, maxX: 150, maxY: 150 };
-    const types: Array<"cat" | "dog" | "bird"> = ["cat", "dog", "bird"];
+    const types: Array<"cat" | "dog" | "bird" | "rabbit" | "hamster" | "fox" | "frog" | "turtle"> = ["cat", "dog", "bird", "rabbit", "hamster", "fox", "frog", "turtle"];
 
     for (const type of types) {
       for (let trial = 0; trial < 10; trial++) {
@@ -173,6 +189,36 @@ describe("Critter", () => {
           }
         }
       }
+    }
+  });
+
+  it("speed varies over simulated time", () => {
+    const c = new Critter("cat", 500, 0);
+    c.snapToEdge(bounds);
+    const initialSpeed = c.speed;
+
+    // Simulate 60 seconds — speed changes happen every 5-15s, so we'll see at least one
+    let speedChanged = false;
+    for (let i = 0; i < 3600; i++) {
+      c.update(1 / 60, bounds);
+      if (c.speed !== initialSpeed) {
+        speedChanged = true;
+        break;
+      }
+    }
+
+    expect(speedChanged).toBe(true);
+  });
+
+  it("speed stays within 0.5x–1.5x of base speed", () => {
+    const c = new Critter("fox", 500, 0);
+    c.snapToEdge(bounds);
+
+    // Simulate 5 minutes
+    for (let i = 0; i < 18000; i++) {
+      c.update(1 / 60, bounds);
+      expect(c.speed).toBeGreaterThanOrEqual(c.baseSpeed * 0.5 - 0.001);
+      expect(c.speed).toBeLessThanOrEqual(c.baseSpeed * 1.5 + 0.001);
     }
   });
 

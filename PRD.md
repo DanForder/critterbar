@@ -15,15 +15,15 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [x] verify.sh, Ralph loop scripts, install.sh
 
 ## Phase 2: More Critters & Menu Management
-- [ ] Add more critter types: rabbit 🐰, hamster 🐹, fox 🦊, frog 🐸, turtle 🐢
-- [ ] Each critter type has unique speed (fox fastest, turtle slowest, frog hops)
-- [ ] Only allow one of each critter type at a time (grey out or hide already-added types in the menu)
-- [ ] Show list of active critters in the tray menu with individual remove option (e.g. "Remove Cat 🐱")
-- [ ] "Add Random" option that picks a random critter type from the ones not yet on screen
-- [ ] Critter count shown in menu bar next to the 🐾 icon (e.g. "🐾 3")
+- [x] Add more critter types: rabbit 🐰, hamster 🐹, fox 🦊, frog 🐸, turtle 🐢
+- [x] Each critter type has unique speed (fox fastest, turtle slowest, frog hops)
+- [x] Only allow one of each critter type at a time (grey out or hide already-added types in the menu)
+- [x] Show list of active critters in the tray menu with individual remove option (e.g. "Remove Cat 🐱")
+- [x] "Add Random" option that picks a random critter type from the ones not yet on screen
+- [x] Critter count shown in menu bar next to the 🐾 icon (e.g. "🐾 3")
 
 ## Phase 3: Better Movement & Behaviour
-- [ ] Variable speed: critters occasionally speed up or slow down naturally
+- [x] Variable speed: critters occasionally speed up or slow down naturally
 - [ ] Sleep state: critters that haven't moved for a long time fall asleep (zzz overlay), wake up after a bit
 - [ ] Proximity awareness: critters notice when another critter is nearby (within ~100px)
 - [ ] Following behavior: some critter types follow others when close (e.g. dog follows cat)

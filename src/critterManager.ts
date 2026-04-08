@@ -1,4 +1,4 @@
-import { Critter, CritterBounds, CritterTypeName, CRITTER_SIZE } from "./critter";
+import { Critter, CritterBounds, CritterTypeName, CRITTER_TYPES, CRITTER_SIZE } from "./critter";
 
 export class CritterManager {
   critters: Critter[] = [];
@@ -20,8 +20,24 @@ export class CritterManager {
     return critter;
   }
 
+  hasType(type: CritterTypeName): boolean {
+    return this.critters.some((c) => c.type === type);
+  }
+
+  availableTypes(): CritterTypeName[] {
+    const all = Object.keys(CRITTER_TYPES) as CritterTypeName[];
+    return all.filter((t) => !this.hasType(t));
+  }
+
   removeCritter(id: number): void {
     this.critters = this.critters.filter((c) => c.id !== id);
+  }
+
+  removeCritterByType(type: CritterTypeName): Critter | undefined {
+    const idx = this.critters.findIndex((c) => c.type === type);
+    if (idx === -1) return undefined;
+    const [critter] = this.critters.splice(idx, 1);
+    return critter;
   }
 
   removeAll(): void {

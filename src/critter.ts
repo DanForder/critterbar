@@ -1,12 +1,17 @@
-export type CritterTypeName = "cat" | "dog" | "bird";
+export type CritterTypeName = "cat" | "dog" | "bird" | "rabbit" | "hamster" | "fox" | "frog" | "turtle";
 
 export const CRITTER_TYPES: Record<
   CritterTypeName,
   { emoji: string; speed: number }
 > = {
-  cat: { emoji: "🐱", speed: 12 },
-  dog: { emoji: "🐶", speed: 17 },
-  bird: { emoji: "🐦", speed: 22 },
+  turtle:  { emoji: "🐢", speed: 5 },
+  hamster: { emoji: "🐹", speed: 9 },
+  cat:     { emoji: "🐱", speed: 12 },
+  frog:    { emoji: "🐸", speed: 14 },
+  dog:     { emoji: "🐶", speed: 17 },
+  rabbit:  { emoji: "🐰", speed: 20 },
+  bird:    { emoji: "🐦", speed: 22 },
+  fox:     { emoji: "🦊", speed: 30 },
 };
 
 export const CRITTER_SIZE = 24;
@@ -26,10 +31,14 @@ export type CritterState =
 
 let nextId = 0;
 
+// Speed multiplier options: weighted towards normal (1.0)
+const SPEED_MULTIPLIERS = [0.5, 0.75, 1.0, 1.0, 1.0, 1.25, 1.5];
+
 export class Critter {
   readonly id: number;
   readonly type: CritterTypeName;
   readonly emoji: string;
+  readonly baseSpeed: number;
 
   x: number;
   y: number;
@@ -40,12 +49,15 @@ export class Critter {
 
   private sniffTimer = 0;
   private nextSniffIn: number;
+  private speedTimer = 0;
+  private nextSpeedChangeIn: number;
 
   constructor(type: CritterTypeName, x: number, y: number) {
     this.id = nextId++;
     this.type = type;
     this.emoji = CRITTER_TYPES[type].emoji;
-    this.speed = CRITTER_TYPES[type].speed;
+    this.baseSpeed = CRITTER_TYPES[type].speed;
+    this.speed = this.baseSpeed;
     this.x = x;
     this.y = y;
 
@@ -53,6 +65,7 @@ export class Critter {
     this.edge = edges[Math.floor(Math.random() * edges.length)];
     this.movingForward = Math.random() < 0.5;
     this.nextSniffIn = 3 + Math.random() * 5;
+    this.nextSpeedChangeIn = 5 + Math.random() * 10;
   }
 
   snapToEdge(bounds: CritterBounds): void {
@@ -77,6 +90,15 @@ export class Critter {
   }
 
   update(deltaTime: number, bounds: CritterBounds): void {
+    // Speed variation runs regardless of sniff state
+    this.speedTimer += deltaTime;
+    if (this.speedTimer >= this.nextSpeedChangeIn) {
+      this.speedTimer = 0;
+      this.nextSpeedChangeIn = 5 + Math.random() * 10;
+      const multiplier = SPEED_MULTIPLIERS[Math.floor(Math.random() * SPEED_MULTIPLIERS.length)];
+      this.speed = this.baseSpeed * multiplier;
+    }
+
     if (this.state.kind === "sniffing") {
       const remaining = this.state.remaining - deltaTime;
       if (remaining <= 0) {

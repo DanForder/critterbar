@@ -11,6 +11,35 @@
 - Added e2e test verifying `animationName === "sniff-wiggle"` when critter is sniffing
 - Verification: 19 unit tests + 9 e2e tests, all passing
 
+### 2026-04-09 — Phase 2: More Critter Types
+- Added 5 new critter types: rabbit 🐰, hamster 🐹, fox 🦊, frog 🐸, turtle 🐢
+- Speed hierarchy: turtle(5) < hamster(9) < cat(12) < frog(14) < dog(17) < rabbit(20) < bird(22) < fox(30)
+- Updated lib.rs tray menu with Add Rabbit/Hamster/Fox/Frog/Turtle items
+- Fixed unit test speed expectations (cat/dog/bird were stale at 25/35/45; corrected to 12/17/22)
+- Added emoji, speed, and fox-fastest/turtle-slowest unit tests for all 8 types
+- Updated oscillation tests to cover all 8 critter types
+- Verification: 20 unit tests + 9 e2e tests, all passing
+
+### 2026-04-09 — Phase 2: One Critter Per Type
+- Added `hasType(type)` to CritterManager to check for existing critter type
+- Frontend deduplication: `addCritter` is a no-op if that type already exists
+- Tauri command `set_critter_active(critterType, active)` disables/re-enables tray menu items
+- Stored `MenuItem` clones in managed `MenuItems` state (Mutex<HashMap>) for live updates
+- Frontend calls `invoke("set_critter_active", ...)` after add/removeAll (guarded by `__TAURI_INTERNALS__`)
+- Added unit test `hasType` to critterManager test suite
+- Verification: 21 unit tests + 9 e2e tests, all passing
+
+### 2026-04-09 — Phase 2: Individual Critter Remove
+- Added `removeCritterByType(type)` to CritterManager; returns removed Critter or undefined
+- Added `removeCritter(type)` to main.ts: removes DOM element, manager entry, re-enables Add item
+- Frontend exposes `window.critterbar.removeCritter(type)` for Playwright and Tauri events
+- lib.rs: Added "Remove Cat 🐱" … "Remove Turtle 🐢" menu items (disabled by default)
+- Menu restructured: Remove items (top, disabled) → separator → Add items → separator → Remove All → separator → Quit
+- `set_critter_active` now also toggles the corresponding "remove-X" item (enabled when active)
+- Tauri emits "remove-critter" event with critter type when a Remove item is clicked
+- Added 2 unit tests for removeCritterByType (happy path + missing type)
+- Verification: 23 unit tests + 9 e2e tests, all passing
+
 ### 2026-04-09 — Tauri v2 Rewrite
 - Rewrote entire app from Swift/AppKit to Tauri v2 + TypeScript + Vite
 - Ported critter logic: edge-walking, sniff pauses, corner nudge prevention
@@ -21,3 +50,27 @@
 - verify.sh runs build + unit tests + e2e pipeline
 - Ralph loop scripts (ralph-once.sh, afk-ralph.sh) wired to verify.sh
 - install.sh builds and copies .app to /Applications
+
+### 2026-04-09 — Phase 2: Tray Title Count
+- Added `set_tray_title(title)` Tauri command; uses `app.tray_by_id("main")` to update tray title live
+- TrayIconBuilder now uses `with_id("main")` and `.title("🐾")` as initial title
+- Frontend calls `updateTrayTitle()` in `addCritter`, `removeCritter`, and `removeAll`
+- Title shows "🐾 N" when N > 0, or "🐾" when no critters are active
+- Verification: 26 unit tests + 11 e2e tests, all passing
+
+### 2026-04-09 — Phase 2: Add Random
+- Added `availableTypes()` to CritterManager: returns all critter types not currently on screen
+- Added `addRandom()` to main.ts: picks a random available type and adds it; no-op if all 8 types active
+- Exposed `addRandom` on `window.critterbar` API for Playwright and Tauri events
+- Added "Add Random 🎲" menu item in lib.rs; disabled via `set_add_random_enabled` command when all types active
+- Rust emits "add-random" event on click; frontend handles it like any other add
+- Added 3 unit tests for `availableTypes` (empty manager, partial, full)
+- Added 2 e2e tests: addRandom picks unused type, addRandom is no-op when all active
+- Verification: 26 unit tests + 11 e2e tests, all passing
+
+### 2026-04-09 — Phase 3: Variable Speed
+- Added `baseSpeed` (readonly) and private `speedTimer`/`nextSpeedChangeIn` fields to Critter
+- Speed multiplier chosen from [0.5, 0.75, 1.0, 1.0, 1.0, 1.25, 1.5] (weighted towards normal)
+- Speed changes every 5-15s of simulated time, independent of sniff state
+- Added 2 unit tests: "speed varies over simulated time" and "speed stays within 0.5x–1.5x of base speed"
+- Verification: 28 unit tests + 11 e2e tests, all passing

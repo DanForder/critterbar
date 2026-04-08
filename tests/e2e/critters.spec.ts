@@ -147,6 +147,33 @@ test.describe("Critterbar", () => {
     expect(animationName).toBe("sniff-wiggle");
   });
 
+  test("addRandom adds a critter from unused types", async ({ page }) => {
+    await page.evaluate(() => (window as any).critterbar.addCritter("cat"));
+    await expect(page.locator("[data-critter-type]")).toHaveCount(1);
+
+    await page.evaluate(() => (window as any).critterbar.addRandom());
+    await expect(page.locator("[data-critter-type]")).toHaveCount(2);
+
+    const types: string[] = await page.evaluate(() =>
+      (window as any).critterbar.getCritters().map((c: any) => c.type)
+    );
+    expect(types).toContain("cat");
+    const nonCat = types.filter((t) => t !== "cat");
+    expect(nonCat.length).toBe(1);
+  });
+
+  test("addRandom is no-op when all types are active", async ({ page }) => {
+    const allTypes = ["cat", "dog", "bird", "rabbit", "hamster", "fox", "frog", "turtle"];
+    await page.evaluate((types) => {
+      const cb = (window as any).critterbar;
+      for (const t of types) cb.addCritter(t);
+    }, allTypes);
+    await expect(page.locator("[data-critter-type]")).toHaveCount(8);
+
+    await page.evaluate(() => (window as any).critterbar.addRandom());
+    await expect(page.locator("[data-critter-type]")).toHaveCount(8);
+  });
+
   test("no rapid edge flicking at corners", async ({ page }) => {
     // Use a small viewport so critters hit corners quickly
     await page.setViewportSize({ width: 200, height: 200 });
