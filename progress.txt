@@ -1,0 +1,11 @@
+## Progress Log
+
+### 2026-04-08 — Phase 1: Core App (v0) Complete
+- Created Swift Package with CritterbarCore (library) + Critterbar (executable) targets
+- Implemented Critter model with random wandering, direction changes, boundary clamping
+- Implemented CritterManager to manage collection of critters
+- Created transparent overlay windows (one per screen, click-through, floating)
+- Added menu bar status item (🐾) with Add Cat/Dog/Bird, Remove All, Quit
+- 30fps timer-based update loop
+- 14 unit tests passing (7 CritterTests + 7 CritterManagerTests)
+- Smoke test mode via --smoke-test flag
