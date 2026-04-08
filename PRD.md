@@ -22,6 +22,11 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [x] "Add Random" option that picks a random critter type from the ones not yet on screen
 - [x] Critter count shown in menu bar next to the 🐾 icon (e.g. "🐾 3")
 
+## Phase 2b: Quick Improvements
+- [ ] Emoji rotation: critters rotate so their feet always face the screen edge they're walking on (bottom=0°, right=90°, top=180°, left=270° via CSS transform rotate)
+- [ ] "Add All" menu item that adds all critter types at once
+- [ ] Tray menu stays open after clicking an item (so user can add multiple critters in quick succession without reopening the menu)
+
 ## Phase 3: Better Movement & Behaviour
 - [x] Variable speed: critters occasionally speed up or slow down naturally
 - [ ] Sleep state: critters that haven't moved for a long time fall asleep (zzz overlay), wake up after a bit
