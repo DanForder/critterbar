@@ -18,6 +18,7 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [x] Install to /Applications via install.sh
 
 ## Phase 2: Better Movement
+- [ ] Sniff animation: critters do a small bounce or side-to-side wiggle while sniffing (CSS animation on the critter div when data-state="sniffing")
 - [ ] Smoother direction changes with easing/interpolation instead of instant snaps
 - [ ] Variable speed: critters sometimes speed up or slow down naturally
 - [ ] Gravity-like behavior: critters prefer the bottom edge more than top
