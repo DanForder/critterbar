@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+export PATH="$HOME/.local/bin:$PATH"
 
 if [ -z "$1" ]; then
   echo "Usage: $0 <iterations>"

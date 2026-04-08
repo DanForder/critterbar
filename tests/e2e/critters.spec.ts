@@ -27,8 +27,8 @@ test.describe("Critterbar", () => {
     const onEdge =
       box!.y <= 3 ||
       box!.x <= 3 ||
-      box!.x >= vw - 48 - 3 ||
-      box!.y >= vh - 48 - 3;
+      box!.x >= vw - 24 - 3 ||
+      box!.y >= vh - 24 - 3;
     expect(onEdge).toBe(true);
   });
 
@@ -64,8 +64,8 @@ test.describe("Critterbar", () => {
     const onEdge =
       pos2!.y <= 3 ||
       pos2!.x <= 3 ||
-      pos2!.x >= vw - 48 - 3 ||
-      pos2!.y >= vh - 48 - 3;
+      pos2!.x >= vw - 24 - 3 ||
+      pos2!.y >= vh - 24 - 3;
     expect(onEdge).toBe(true);
   });
 
@@ -93,8 +93,8 @@ test.describe("Critterbar", () => {
       const onEdge =
         box!.y <= 3 ||
         box!.x <= 3 ||
-        box!.x >= vw - 48 - 3 ||
-        box!.y >= vh - 48 - 3;
+        box!.x >= vw - 24 - 3 ||
+        box!.y >= vh - 24 - 3;
       expect(onEdge).toBe(true);
     }
   });
@@ -131,6 +131,20 @@ test.describe("Critterbar", () => {
 
     // In 2 seconds, a bird at 45px/s shouldn't hit more than ~2 corners
     expect(transitions).toBeLessThanOrEqual(4);
+  });
+
+  test("sniffing critter has wiggle animation", async ({ page }) => {
+    await page.evaluate(() => (window as any).critterbar.addCritter("cat"));
+    const critter = page.locator('[data-critter-type="cat"]');
+
+    // Wait until the critter enters sniffing state (up to 10s)
+    await expect(critter).toHaveAttribute("data-state", "sniffing", { timeout: 10000 });
+
+    // Verify the CSS animation is applied
+    const animationName = await critter.evaluate(
+      (el) => getComputedStyle(el).animationName
+    );
+    expect(animationName).toBe("sniff-wiggle");
   });
 
   test("no rapid edge flicking at corners", async ({ page }) => {

@@ -1,4 +1,5 @@
 #!/bin/bash
+export PATH="$HOME/.local/bin:$PATH"
 
 claude --permission-mode acceptEdits "@PRD.md @progress.txt @CLAUDE.md \
 1. Read the PRD, progress file, and CLAUDE.md. \

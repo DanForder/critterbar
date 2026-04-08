@@ -4,12 +4,12 @@ export const CRITTER_TYPES: Record<
   CritterTypeName,
   { emoji: string; speed: number }
 > = {
-  cat: { emoji: "🐱", speed: 25 },
-  dog: { emoji: "🐶", speed: 35 },
-  bird: { emoji: "🐦", speed: 45 },
+  cat: { emoji: "🐱", speed: 12 },
+  dog: { emoji: "🐶", speed: 17 },
+  bird: { emoji: "🐦", speed: 22 },
 };
 
-export const CRITTER_SIZE = 48;
+export const CRITTER_SIZE = 24;
 
 export interface CritterBounds {
   minX: number;
@@ -91,7 +91,7 @@ export class Critter {
 
     this.sniffTimer += deltaTime;
     if (this.sniffTimer >= this.nextSniffIn) {
-      this.state = { kind: "sniffing", remaining: 1 + Math.random() * 2 };
+      this.state = { kind: "sniffing", remaining: 2 + Math.random() * 3 };
       this.sniffTimer = 0;
       return;
     }

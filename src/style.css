@@ -10,10 +10,21 @@ html, body {
 
 .critter {
   position: fixed;
-  font-size: 40px;
-  line-height: 48px;
+  font-size: 20px;
+  line-height: 24px;
   text-align: center;
   pointer-events: none;
   user-select: none;
   z-index: 9999;
+}
+
+@keyframes sniff-wiggle {
+  0%   { transform: translateX(0); }
+  25%  { transform: translateX(-1px); }
+  75%  { transform: translateX(1px); }
+  100% { transform: translateX(0); }
+}
+
+.critter[data-state="sniffing"] {
+  animation: sniff-wiggle 0.4s ease-in-out infinite;
 }

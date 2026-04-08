@@ -5,6 +5,12 @@
 - Menu bar icon, transparent overlay windows, random wandering critters
 - 18 unit tests, AppleScript e2e test, smoke test mode
 
+### 2026-04-09 — Phase 2: Sniff Animation
+- Added `@keyframes sniff-wiggle` CSS animation (side-to-side ±4px, 0.4s loop)
+- Applied to `.critter[data-state="sniffing"]` in style.css
+- Added e2e test verifying `animationName === "sniff-wiggle"` when critter is sniffing
+- Verification: 19 unit tests + 9 e2e tests, all passing
+
 ### 2026-04-09 — Tauri v2 Rewrite
 - Rewrote entire app from Swift/AppKit to Tauri v2 + TypeScript + Vite
 - Ported critter logic: edge-walking, sniff pauses, corner nudge prevention
