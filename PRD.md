@@ -39,6 +39,7 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [x] **Accessible name label colours**: critter name text is currently white, invisible on light backgrounds. Dynamically pick a readable colour based on what's behind the label (e.g. sample the background pixel colour via canvas, or use a dark outline/stroke that works on both light and dark backgrounds)
 - [ ] Proximity awareness: critters notice when another critter is nearby (within ~100px)
 - [ ] Following behavior: some critter types follow others when close (e.g. dog follows cat)
+- [ ] **Pixel art sprites for remaining critters**: add sprite sheets (walk1, walk2, idle frames) to `src/sprites.ts` for cat, dog, rabbit, hamster, fox, frog, and turtle. Follow the same pattern as the bird sprite (12x12 pixel color arrays, rendered to canvas). Each critter should have a distinctive colour palette and recognisable silhouette. Keep the same chunky pixel art style.
 - [ ] Smoother direction changes with easing instead of instant snaps
 - [ ] Custom app icon for the tray (replace default icon with a proper critter icon)
 

@@ -137,8 +137,15 @@ function getCritters() {
   }));
 }
 
+// Force-add a critter (bypasses duplicate check, for sandbox/dev use)
+function forceAddCritter(type: CritterTypeName): void {
+  const critter = manager.addCritter(type);
+  addCritterElement(critter);
+  updateTrayTitle();
+}
+
 // Expose API for Playwright and Tauri events
-const critterbar = { addCritter, removeCritter, removeAll, getCritters, addRandom, addAllCritters };
+const critterbar = { addCritter, removeCritter, removeAll, getCritters, addRandom, addAllCritters, forceAddCritter };
 (window as any).critterbar = critterbar;
 
 // Listen for Tauri tray events (only when running inside Tauri)
