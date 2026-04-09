@@ -7,6 +7,88 @@ import {
   removeCritterElement,
   removeAllCritterElements,
 } from "./renderer";
+import { SPRITE_SHEETS, getSpriteFrameURL } from "./sprites";
+
+// Sprite sandbox mode — visit /?sandbox=sprites to preview sprites
+if (new URLSearchParams(location.search).get("sandbox") === "sprites") {
+  renderSpriteSandbox();
+  throw new Error("sandbox mode — skipping normal startup");
+}
+
+function renderSpriteSandbox(): void {
+  document.body.classList.remove("hide-names");
+  document.body.style.background = "#1a1a1a";
+  document.body.style.color = "#eee";
+  document.body.style.fontFamily = "system-ui, sans-serif";
+  document.body.style.padding = "12px";
+  document.body.style.margin = "0";
+  document.body.style.overflowY = "auto";
+
+  const types = Object.keys(SPRITE_SHEETS);
+  const frames: Array<"walk1" | "walk2" | "idle"> = ["walk1", "walk2", "idle"];
+
+  const grid = document.createElement("div");
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns = "repeat(4, 1fr)";
+  grid.style.gap = "8px";
+
+  for (const type of types) {
+    const tile = document.createElement("div");
+    tile.style.display = "flex";
+    tile.style.flexDirection = "column";
+    tile.style.alignItems = "center";
+    tile.style.gap = "4px";
+    tile.style.padding = "8px";
+    tile.style.background = "#222";
+    tile.style.borderRadius = "6px";
+
+    const label = document.createElement("div");
+    label.textContent = type;
+    label.style.fontWeight = "bold";
+    label.style.textTransform = "uppercase";
+    label.style.fontSize = "10px";
+    label.style.letterSpacing = "1px";
+    label.style.color = "#aaa";
+    tile.appendChild(label);
+
+    const framesRow = document.createElement("div");
+    framesRow.style.display = "flex";
+    framesRow.style.gap = "4px";
+    framesRow.style.alignItems = "center";
+
+    for (const frame of frames) {
+      const img = document.createElement("img");
+      const url = getSpriteFrameURL(type, frame, 96);
+      if (url) img.src = url;
+      img.style.width = "96px";
+      img.style.height = "96px";
+      img.style.imageRendering = "pixelated";
+      img.style.background = "#111";
+      framesRow.appendChild(img);
+    }
+    tile.appendChild(framesRow);
+
+    const smallRow = document.createElement("div");
+    smallRow.style.display = "flex";
+    smallRow.style.gap = "4px";
+    smallRow.style.alignItems = "center";
+    for (const frame of frames) {
+      const img = document.createElement("img");
+      const url = getSpriteFrameURL(type, frame, 24);
+      if (url) img.src = url;
+      img.style.width = "24px";
+      img.style.height = "24px";
+      img.style.imageRendering = "pixelated";
+      img.style.background = "#111";
+      smallRow.appendChild(img);
+    }
+    tile.appendChild(smallRow);
+
+    grid.appendChild(tile);
+  }
+
+  document.body.appendChild(grid);
+}
 
 const manager = new CritterManager();
 
