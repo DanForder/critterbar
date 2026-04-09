@@ -30,7 +30,10 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [x] Remember active critters between app launches (Tauri store or localStorage)
 - [x] Spread spawning: new critters spawn at the position on the edges furthest from all existing critters (maximise distance from nearest critter)
 - [x] Launch at login option in tray menu
-- [ ] Sleep state: critters that haven't moved for a long time fall asleep (zzz overlay), wake up after a bit
+- [x] **Panel state sync on restore**: fix checkboxes, Remove All, and Add All state after quit/reopen — currently Remove All is greyed out and Add All is enabled but non-functional when all critters are active
+- [x] **Persist critter positions**: save full critter state (x, y, edge, direction) between app launches, not just types — currently critters get reshuffled on quit/reopen
+- [x] **Auto-restart after update**: clicking Check for Updates should auto-download and auto-restart seamlessly (no manual "Restart to update" step) — critters are persisted so restart is safe
+- [x] Sleep state: critters that haven't moved for a long time fall asleep (zzz overlay), wake up after a bit
 - [ ] Proximity awareness: critters notice when another critter is nearby (within ~100px)
 - [ ] Following behavior: some critter types follow others when close (e.g. dog follows cat)
 - [ ] Smoother direction changes with easing instead of instant snaps

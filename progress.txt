@@ -127,3 +127,40 @@
 - First critter still uses random edge placement (no existing critters to spread from)
 - Added 2 unit tests: second critter >800px from forced bottom-left first critter; third critter >500px from both occupied corners
 - Verification: 30 unit tests + 14 e2e tests, all passing
+
+### 2026-04-09 — Persist Critter Positions
+- `saveActiveCritters()` now saves full state per critter: `{ type, x, y, edge, movingForward }` (was type-name array only)
+- `restoreActiveCritters()` reads new format and calls `manager.addCritterAtPosition(type, x, y, edge, movingForward)` to restore exact positions — bypasses spread-spawn logic
+- Legacy format (plain string array) still handled gracefully for old saves
+- Added `addCritterAtPosition(type, x, y, edge, movingForward)` to `CritterManager` — places critter at specific position without spread-spawn
+- Added 2 unit tests: restores exact position/edge/direction; does not apply spread spawning
+- Verification: 32 unit tests + 14 e2e tests, all passing
+
+### 2026-04-09 — Panel State Sync on Restore
+- Root cause: `get_active_critters` read from `remove-{type}` menu items that were never added to `item_map`; always returned `[]`
+- Added `ActiveCritters(Mutex<HashSet<String>>)` managed state in Rust
+- `set_critter_active` now updates the HashSet in addition to emitting `critter-state-changed`
+- `get_active_critters` now reads from the HashSet (always returns correct set of active critters)
+- Tray left-click handler now emits `panel-opened` after showing the panel
+- `panel.ts` listens for `panel-opened` and re-fetches `get_active_critters` to sync state; eliminates startup race condition
+- Result: panel checkboxes, Remove All, and Add All are correct immediately on first open after restore
+- Verification: 30 unit tests + 14 e2e tests, all passing
+
+### 2026-04-09 — Auto-Restart After Update
+- `checkForUpdates` now calls `relaunch()` immediately after `downloadAndInstall()` completes
+- Removed `updateReady` flag and `handleUpdateMenuClick` two-step flow
+- `listen("check-update")` now calls `checkForUpdates(false)` directly
+- Silent startup check also auto-restarts if an update is found (critters persist across restart)
+- No new tests needed: update flow requires a live update server, not exercisable via Playwright
+- Verification: 32 unit tests + 14 e2e tests, all passing
+
+### 2026-04-09 — Sleep State
+- Added `sleeping` to `CritterState` union type: `{ kind: "sleeping"; remaining: number }`
+- After a sniff ends, 20% chance critter falls asleep (10-20s duration) instead of resuming walking
+- While sleeping, `update()` returns early — critter position and edge are frozen
+- After sleep expires, critter returns to `walking` state with a fresh sniff timer
+- Added `@keyframes zzz-float` CSS animation (gentle 4px vertical float, 2s loop)
+- Added `::after` pseudo-element on `.critter[data-state="sleeping"]` showing 💤 emoji with float animation
+- `renderer.ts` already sets `data-state` from `critter.state.kind` — no renderer changes needed
+- Added 3 unit tests: eventually falls asleep; does not move while sleeping; wakes up after sleep duration
+- Verification: 35 unit tests + 14 e2e tests, all passing

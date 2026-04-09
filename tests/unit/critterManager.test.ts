@@ -151,6 +151,27 @@ describe("CritterManager", () => {
     expect(dist).toBeGreaterThan(800);
   });
 
+  it("addCritterAtPosition restores exact position, edge, and direction", () => {
+    const m = createManager();
+    const critter = m.addCritterAtPosition("fox", 500, 0, "bottom", false);
+    expect(critter.type).toBe("fox");
+    expect(critter.x).toBe(500);
+    expect(critter.y).toBe(0);
+    expect(critter.edge).toBe("bottom");
+    expect(critter.movingForward).toBe(false);
+    expect(m.count).toBe(1);
+  });
+
+  it("addCritterAtPosition does not use spread spawning", () => {
+    const m = createManager();
+    // Put a critter at bottom-left
+    m.addCritterAtPosition("cat", 0, 0, "bottom", true);
+    // Restore a second critter right next to the first — bypasses spread logic
+    const c2 = m.addCritterAtPosition("dog", 5, 0, "bottom", true);
+    expect(c2.x).toBe(5);
+    expect(c2.y).toBe(0);
+  });
+
   it("spread spawning places third critter far from both existing critters", () => {
     const m = createManager();
     m.addCritter("cat");

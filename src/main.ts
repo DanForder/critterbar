@@ -1,5 +1,5 @@
 import "./style.css";
-import { CritterTypeName } from "./critter";
+import { CritterTypeName, Edge } from "./critter";
 import { CritterManager } from "./critterManager";
 import {
   addCritterElement,
@@ -39,18 +39,43 @@ async function updateTrayTitle(): Promise<void> {
   }
 }
 
+interface SavedCritterState {
+  type: CritterTypeName;
+  x: number;
+  y: number;
+  edge: Edge;
+  movingForward: boolean;
+}
+
 function saveActiveCritters(): void {
-  const types = manager.critters.map((c) => c.type);
-  localStorage.setItem("activeCritters", JSON.stringify(types));
+  const states: SavedCritterState[] = manager.critters.map((c) => ({
+    type: c.type,
+    x: c.x,
+    y: c.y,
+    edge: c.edge,
+    movingForward: c.movingForward,
+  }));
+  localStorage.setItem("activeCritters", JSON.stringify(states));
 }
 
 function restoreActiveCritters(): void {
   try {
     const saved = localStorage.getItem("activeCritters");
     if (!saved) return;
-    const types: CritterTypeName[] = JSON.parse(saved);
-    for (const type of types) {
-      addCritter(type);
+    const data: unknown[] = JSON.parse(saved);
+    if (!Array.isArray(data)) return;
+    for (const item of data) {
+      if (typeof item === "string") {
+        // Legacy format: type name only — use spread spawning
+        addCritter(item as CritterTypeName);
+      } else if (item && typeof (item as SavedCritterState).type === "string") {
+        const s = item as SavedCritterState;
+        if (manager.hasType(s.type)) continue;
+        const critter = manager.addCritterAtPosition(s.type, s.x, s.y, s.edge, s.movingForward);
+        addCritterElement(critter);
+        notifyCritterState(s.type, true);
+        updateTrayTitle();
+      }
     }
   } catch {
     // Ignore malformed data
@@ -135,7 +160,7 @@ async function setupTauriEvents() {
       addAllCritters();
     });
     listen("check-update", () => {
-      handleUpdateMenuClick();
+      checkForUpdates(false);
     });
   } catch {
     // Not running in Tauri — that's fine
@@ -146,7 +171,6 @@ setupTauriEvents();
 restoreActiveCritters();
 
 // Update management
-let updateReady = false;
 
 async function setUpdateMenuText(text: string) {
   const { invoke } = await import("@tauri-apps/api/core");
@@ -162,8 +186,9 @@ async function checkForUpdates(silent = true) {
     if (update) {
       await setUpdateMenuText(`Downloading v${update.version}...`);
       await update.downloadAndInstall();
-      updateReady = true;
-      await setUpdateMenuText(`✓ Restart to update (v${update.version})`);
+      // Auto-restart immediately — critters are persisted so restart is safe
+      const { relaunch } = await import("@tauri-apps/plugin-process");
+      await relaunch();
     } else if (!silent) {
       await setUpdateMenuText("No updates available");
       setTimeout(() => setUpdateMenuText("Check for Updates"), 3000);
@@ -173,15 +198,6 @@ async function checkForUpdates(silent = true) {
       await setUpdateMenuText("Update check failed");
       setTimeout(() => setUpdateMenuText("Check for Updates"), 3000);
     }
-  }
-}
-
-async function handleUpdateMenuClick() {
-  if (updateReady) {
-    const { relaunch } = await import("@tauri-apps/plugin-process");
-    await relaunch();
-  } else {
-    checkForUpdates(false);
   }
 }
 

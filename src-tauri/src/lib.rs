@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem},
@@ -10,6 +10,7 @@ use tauri::{
 use tauri_plugin_autostart::ManagerExt;
 
 struct MenuItems(Mutex<HashMap<String, MenuItem<tauri::Wry>>>);
+struct ActiveCritters(Mutex<HashSet<String>>);
 
 #[derive(Clone, serde::Serialize)]
 struct CritterStateChanged {
@@ -21,9 +22,17 @@ struct CritterStateChanged {
 fn set_critter_active(
     app: tauri::AppHandle,
     state: State<'_, MenuItems>,
+    active_critters: State<'_, ActiveCritters>,
     critter_type: String,
     active: bool,
 ) {
+    if let Ok(mut critters) = active_critters.0.lock() {
+        if active {
+            critters.insert(critter_type.clone());
+        } else {
+            critters.remove(&critter_type);
+        }
+    }
     if let Ok(items) = state.0.lock() {
         if let Some(item) = items.get(&format!("add-{}", critter_type)) {
             let _ = item.set_enabled(!active);
@@ -51,19 +60,9 @@ fn set_tray_title(app: tauri::AppHandle, title: String) {
 }
 
 #[tauri::command]
-fn get_active_critters(state: State<'_, MenuItems>) -> Vec<String> {
-    let types = ["cat", "dog", "bird", "rabbit", "hamster", "fox", "frog", "turtle"];
-    if let Ok(items) = state.0.lock() {
-        types
-            .iter()
-            .filter(|t| {
-                items
-                    .get(&format!("remove-{}", t))
-                    .and_then(|item| item.is_enabled().ok())
-                    .unwrap_or(false)
-            })
-            .map(|t| t.to_string())
-            .collect()
+fn get_active_critters(active_critters: State<'_, ActiveCritters>) -> Vec<String> {
+    if let Ok(critters) = active_critters.0.lock() {
+        critters.iter().cloned().collect()
     } else {
         vec![]
     }
@@ -236,6 +235,7 @@ pub fn run() {
             let mut item_map: HashMap<String, MenuItem<tauri::Wry>> = HashMap::new();
             item_map.insert("check-update".to_string(), check_update.clone());
             app.manage(MenuItems(Mutex::new(item_map)));
+            app.manage(ActiveCritters(Mutex::new(HashSet::new())));
 
             let menu = Menu::with_items(
                 app,
@@ -281,6 +281,7 @@ pub fn run() {
                                 ));
                                 let _ = panel.show();
                                 let _ = panel.set_focus();
+                                let _ = app.emit("panel-opened", ());
                             }
                         }
                     }

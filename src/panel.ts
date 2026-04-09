@@ -145,6 +145,13 @@ async function init(): Promise<void> {
       }
       render();
     });
+    // Re-fetch full state when the panel is opened (ensures correct state after app restore)
+    listen("panel-opened", async () => {
+      const { invoke } = await import("@tauri-apps/api/core");
+      const active = await invoke<string[]>("get_active_critters");
+      activeTypes = new Set(active as CritterType[]);
+      render();
+    });
   } catch {
     // Not in Tauri context
   }

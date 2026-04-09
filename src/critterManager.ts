@@ -29,6 +29,14 @@ export class CritterManager {
     return critter;
   }
 
+  addCritterAtPosition(type: CritterTypeName, x: number, y: number, edge: Edge, movingForward: boolean): Critter {
+    const critter = new Critter(type, x, y);
+    critter.edge = edge;
+    critter.movingForward = movingForward;
+    this.critters.push(critter);
+    return critter;
+  }
+
   private bestSpawnPoint(bounds: CritterBounds): { x: number; y: number; edge: Edge } {
     const { minX, minY, maxX, maxY } = bounds;
     const w = maxX - minX;

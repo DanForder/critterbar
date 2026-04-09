@@ -192,6 +192,59 @@ describe("Critter", () => {
     }
   });
 
+  it("eventually falls asleep", () => {
+    const c = new Critter("cat", 500, 0);
+    c.snapToEdge(bounds);
+
+    // Simulate 5 minutes — many sniff cycles, 20% sleep chance per sniff
+    // Expected ~54 sniffs → P(at least one sleep) > 99.99%
+    let didSleep = false;
+    for (let i = 0; i < 18000; i++) {
+      c.update(1 / 60, bounds);
+      if (c.state.kind === "sleeping") {
+        didSleep = true;
+        break;
+      }
+    }
+
+    expect(didSleep).toBe(true);
+  });
+
+  it("does not move while sleeping", () => {
+    const c = new Critter("cat", 500, 0);
+    c.snapToEdge(bounds);
+    // Force into sleeping state
+    (c as any).state = { kind: "sleeping", remaining: 5 };
+    const x = c.x;
+    const y = c.y;
+
+    for (let i = 0; i < 60; i++) {
+      c.update(1 / 60, bounds);
+      if (c.state.kind === "sleeping") {
+        expect(c.x).toBe(x);
+        expect(c.y).toBe(y);
+      }
+    }
+  });
+
+  it("wakes up after sleep duration and resumes walking", () => {
+    const c = new Critter("dog", 200, 0);
+    c.snapToEdge(bounds);
+    (c as any).state = { kind: "sleeping", remaining: 0.5 };
+
+    // Simulate until sleep ends
+    let woke = false;
+    for (let i = 0; i < 120; i++) {
+      c.update(1 / 60, bounds);
+      if (c.state.kind === "walking") {
+        woke = true;
+        break;
+      }
+    }
+
+    expect(woke).toBe(true);
+  });
+
   it("speed varies over simulated time", () => {
     const c = new Critter("cat", 500, 0);
     c.snapToEdge(bounds);
