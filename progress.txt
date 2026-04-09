@@ -179,6 +179,9 @@
 ### 2026-04-10 — Migrate cocoa crate to objc2-app-kit
 2026-04-10: Replaced deprecated `cocoa` crate with `objc2-app-kit` for NSWindow setLevel/setCollectionBehavior; uses typed NSFloatingWindowLevel and NSWindowCollectionBehavior constants
 
+### 2026-04-10 — Update workflows to Node.js 24
+2026-04-10: Added FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true env var to release.yml and auto-tag.yml; bumped setup-node node-version from 20 to 24 to silence Node 20 deprecation warnings
+
 ### 2026-04-10 — Emoji/Sprite segmented toggle
 - Replaced single cycling art button with a two-segment toggle (😀 Emoji | 🎨 Sprite)
 - Active segment highlighted in green; inactive in normal dark style — both modes always visible
