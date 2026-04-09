@@ -36,6 +36,7 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [ ] Sleep state (as part of moods feature): critters fall asleep with zzz overlay — tied to sleepy mood, not just idle time
 - [x] **Critter names on hover**: each critter gets a randomly generated cute name (e.g. "Captain Whiskers", "Sir Hopsalot") shown as a tooltip on hover. Name should persist between app launches (save with critter state). Each critter type should have a themed name pool.
 - [x] Critter collisions: critters on the same edge can't overlap — they reverse direction and nudge apart on contact (1D billiard physics)
+- [x] **Accessible name label colours**: critter name text is currently white, invisible on light backgrounds. Dynamically pick a readable colour based on what's behind the label (e.g. sample the background pixel colour via canvas, or use a dark outline/stroke that works on both light and dark backgrounds)
 - [ ] Proximity awareness: critters notice when another critter is nearby (within ~100px)
 - [ ] Following behavior: some critter types follow others when close (e.g. dog follows cat)
 - [ ] Smoother direction changes with easing instead of instant snaps
