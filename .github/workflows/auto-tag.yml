@@ -1,0 +1,32 @@
+name: Auto-tag on version bump
+
+# Creates a v{version} tag whenever package.json's version on main
+# doesn't yet have a matching tag. The tag push then triggers
+# release.yml which builds and publishes the GitHub release.
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  auto-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tag if package.json version has no matching tag
+        run: |
+          VERSION=$(jq -r .version package.json)
+          TAG="v${VERSION}"
+          if git rev-parse "refs/tags/${TAG}" >/dev/null 2>&1; then
+            echo "Tag ${TAG} already exists — nothing to do."
+            exit 0
+          fi
+          echo "Creating tag ${TAG} at $(git rev-parse HEAD)"
+          git tag "${TAG}"
+          git push origin "${TAG}"
