@@ -25,6 +25,11 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [x] "Add All" menu item that adds all critter types at once
 - [x] Variable speed: critters occasionally speed up or slow down naturally
 
+## Tech Debt (top priority)
+- [ ] Migrate from deprecated `cocoa` crate to `objc2-app-kit` for NSWindow level and collection behavior (~15 lines in lib.rs)
+- [ ] **Update `.github/workflows/release.yml` to Node.js 24**: GitHub deprecated Node 20 for actions runners. `actions/checkout@v4`, `actions/setup-node@v4`, and `softprops/action-gh-release@v2` all currently run on Node 20 and emit deprecation warnings on every release build. Node 20 will be forced to Node 24 by default starting 2026-06-02 and removed entirely on 2026-09-16. Fix: bump each action to whichever version declares Node 24 support (check their release notes), or set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` as a workflow env var to opt in early. Same fix needs to go into `auto-tag.yml`.
+- [ ] **Auto-tag → release chain needs a PAT**: `auto-tag.yml` pushes the `v{version}` tag using the default `GITHUB_TOKEN`, but GitHub Actions intentionally does not trigger workflows from pushes made with `GITHUB_TOKEN` (loop prevention). As a result, the tag push does NOT fire `release.yml`, and the release has to be kicked off manually with `gh workflow run release.yml --ref v{version}`. First observed on v1.11.0 (2026-04-09). Fix: create a fine-grained PAT with `contents: write` on this repo, store it as a repo secret (e.g. `RELEASE_PAT`), and have `auto-tag.yml` `git push origin "${TAG}"` using that token instead of `GITHUB_TOKEN`. Alternative: have `auto-tag.yml` call `gh workflow run release.yml --ref "${TAG}"` directly after pushing the tag (simpler, no PAT needed, but couples the two workflows).
+
 ## Next Up
 - [x] Panel auto-hides when clicking outside it (blur/focus-lost dismissal)
 - [x] Remember active critters between app launches (Tauri store or localStorage)
@@ -56,11 +61,6 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [ ] Dark mode awareness: critters react to system dark mode (sleep more in dark mode)
 - [ ] Window awareness: critters walk along the edges of actual application windows, not just screen edges
 - [ ] Sound effects (subtle, optional): tiny footstep sounds, purring, chirping
-
-## Tech Debt
-- [ ] Migrate from deprecated `cocoa` crate to `objc2-app-kit` for NSWindow level and collection behavior (~15 lines in lib.rs)
-- [ ] **Update `.github/workflows/release.yml` to Node.js 24**: GitHub deprecated Node 20 for actions runners. `actions/checkout@v4`, `actions/setup-node@v4`, and `softprops/action-gh-release@v2` all currently run on Node 20 and emit deprecation warnings on every release build. Node 20 will be forced to Node 24 by default starting 2026-06-02 and removed entirely on 2026-09-16. Fix: bump each action to whichever version declares Node 24 support (check their release notes), or set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` as a workflow env var to opt in early. Same fix needs to go into `auto-tag.yml`.
-- [ ] **Auto-tag → release chain needs a PAT**: `auto-tag.yml` pushes the `v{version}` tag using the default `GITHUB_TOKEN`, but GitHub Actions intentionally does not trigger workflows from pushes made with `GITHUB_TOKEN` (loop prevention). As a result, the tag push does NOT fire `release.yml`, and the release has to be kicked off manually with `gh workflow run release.yml --ref v{version}`. First observed on v1.11.0 (2026-04-09). Fix: create a fine-grained PAT with `contents: write` on this repo, store it as a repo secret (e.g. `RELEASE_PAT`), and have `auto-tag.yml` `git push origin "${TAG}"` using that token instead of `GITHUB_TOKEN`. Alternative: have `auto-tag.yml` call `gh workflow run release.yml --ref "${TAG}"` directly after pushing the tag (simpler, no PAT needed, but couples the two workflows).
 
 ## Deferred
 - [ ] Tray menu stays open after clicking an item (macOS system tray menus close on click by default — no clean Tauri API to override)
