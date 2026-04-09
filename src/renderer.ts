@@ -99,8 +99,8 @@ export function updateCritterElements(critters: Critter[]): void {
 
     const nameEl = nameElements.get(critter.id);
     if (nameEl) {
-      const isSniffing = critter.state.kind === "sniffing";
-      nameEl.style.opacity = isSniffing ? "1" : "0";
+      const showName = critter.state.kind !== "walking";
+      nameEl.style.opacity = showName ? "1" : "0";
       nameEl.dataset.edge = critter.edge;
 
       // Position name inward from the screen edge, centered on the critter

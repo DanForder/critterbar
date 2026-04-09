@@ -173,9 +173,11 @@ async function setupTauriEvents() {
     });
     listen<boolean>("show-names", (event) => {
       document.body.classList.toggle("hide-names", !event.payload);
+      localStorage.setItem("showNames", String(event.payload));
     });
     listen<boolean>("beta-artwork", (event) => {
       document.body.classList.toggle("pixel-art", event.payload);
+      localStorage.setItem("betaArtwork", String(event.payload));
     });
   } catch {
     // Not running in Tauri — that's fine

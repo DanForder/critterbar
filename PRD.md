@@ -33,13 +33,13 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [x] **Panel state sync on restore**: fix checkboxes, Remove All, and Add All state after quit/reopen — currently Remove All is greyed out and Add All is enabled but non-functional when all critters are active
 - [x] **Persist critter positions**: save full critter state (x, y, edge, direction) between app launches, not just types — currently critters get reshuffled on quit/reopen
 - [x] **Auto-restart after update**: clicking Check for Updates should auto-download and auto-restart seamlessly (no manual "Restart to update" step) — critters are persisted so restart is safe
-- [ ] Sleep state (as part of moods feature): critters fall asleep with zzz overlay — tied to sleepy mood, not just idle time
 - [x] **Critter names on hover**: each critter gets a randomly generated cute name (e.g. "Captain Whiskers", "Sir Hopsalot") shown as a tooltip on hover. Name should persist between app launches (save with critter state). Each critter type should have a themed name pool.
 - [x] Critter collisions: critters on the same edge can't overlap — they reverse direction and nudge apart on contact (1D billiard physics)
 - [x] **Accessible name label colours**: critter name text is currently white, invisible on light backgrounds. Dynamically pick a readable colour based on what's behind the label (e.g. sample the background pixel colour via canvas, or use a dark outline/stroke that works on both light and dark backgrounds)
+- [x] **Pixel art sprites for remaining critters**: add sprite sheets (walk1, walk2, idle frames) to `src/sprites.ts` for cat, dog, rabbit, hamster, fox, frog, and turtle. Follow the same pattern as the bird sprite (12x12 pixel color arrays, rendered to canvas). Each critter should have a distinctive colour palette and recognisable silhouette. Keep the same chunky pixel art style. DO NOT modify critter.ts, critterManager.ts, renderer.ts, or main.ts — only add new entries to the SPRITE_SHEETS object in sprites.ts.
+- [ ] Sleep state (as part of moods feature): critters fall asleep with zzz overlay — tied to sleepy mood, not just idle time
 - [ ] Proximity awareness: critters notice when another critter is nearby (within ~100px)
 - [ ] Following behavior: some critter types follow others when close (e.g. dog follows cat)
-- [ ] **Pixel art sprites for remaining critters**: add sprite sheets (walk1, walk2, idle frames) to `src/sprites.ts` for cat, dog, rabbit, hamster, fox, frog, and turtle. Follow the same pattern as the bird sprite (12x12 pixel color arrays, rendered to canvas). Each critter should have a distinctive colour palette and recognisable silhouette. Keep the same chunky pixel art style.
 - [ ] Smoother direction changes with easing instead of instant snaps
 - [ ] Custom app icon for the tray (replace default icon with a proper critter icon)
 
