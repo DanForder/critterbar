@@ -18,7 +18,7 @@ const NAMES: Record<CritterType, string> = {
 
 let activeTypes = new Set<CritterType>();
 let launchAtLogin = false;
-let showNames = localStorage.getItem("showNames") !== "false"; // default true
+let showNames = localStorage.getItem("showNames") === "true"; // default false
 
 async function panelInvoke(command: string, args?: Record<string, unknown>): Promise<void> {
   try {

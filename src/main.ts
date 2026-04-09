@@ -172,8 +172,8 @@ async function setupTauriEvents() {
   }
 }
 
-// Apply saved show-names setting on startup
-if (localStorage.getItem("showNames") === "false") {
+// Apply saved show-names setting on startup (default: hidden)
+if (localStorage.getItem("showNames") !== "true") {
   document.body.classList.add("hide-names");
 }
 
