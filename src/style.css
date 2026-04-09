@@ -34,19 +34,3 @@ html, body {
 .critter[data-state="sniffing"] {
   animation: sniff-wiggle 0.4s ease-in-out infinite;
 }
-
-@keyframes zzz-float {
-  0%   { transform: translateY(0) scale(0.9); opacity: 0.7; }
-  50%  { transform: translateY(-4px) scale(1.1); opacity: 1; }
-  100% { transform: translateY(0) scale(0.9); opacity: 0.7; }
-}
-
-.critter[data-state="sleeping"]::after {
-  content: "💤";
-  position: absolute;
-  font-size: 10px;
-  top: -12px;
-  right: -6px;
-  pointer-events: none;
-  animation: zzz-float 2s ease-in-out infinite;
-}

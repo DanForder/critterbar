@@ -43,8 +43,7 @@ export type Edge = "bottom" | "right" | "top" | "left";
 
 export type CritterState =
   | { kind: "walking" }
-  | { kind: "sniffing"; remaining: number }
-  | { kind: "sleeping"; remaining: number };
+  | { kind: "sniffing"; remaining: number };
 
 let nextId = 0;
 
@@ -118,29 +117,12 @@ export class Critter {
       this.speed = this.baseSpeed * multiplier;
     }
 
-    if (this.state.kind === "sleeping") {
+    if (this.state.kind === "sniffing") {
       const remaining = this.state.remaining - deltaTime;
       if (remaining <= 0) {
         this.state = { kind: "walking" };
         this.nextSniffIn = 3 + Math.random() * 5;
         this.sniffTimer = 0;
-      } else {
-        this.state = { kind: "sleeping", remaining };
-      }
-      return;
-    }
-
-    if (this.state.kind === "sniffing") {
-      const remaining = this.state.remaining - deltaTime;
-      if (remaining <= 0) {
-        // 20% chance to fall asleep instead of resuming walking
-        if (Math.random() < 0.2) {
-          this.state = { kind: "sleeping", remaining: 10 + Math.random() * 10 };
-        } else {
-          this.state = { kind: "walking" };
-          this.nextSniffIn = 3 + Math.random() * 5;
-          this.sniffTimer = 0;
-        }
       } else {
         this.state = { kind: "sniffing", remaining };
       }
