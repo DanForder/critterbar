@@ -18,11 +18,21 @@ const NAMES: Record<CritterType, string> = {
 
 let activeTypes = new Set<CritterType>();
 let launchAtLogin = false;
+let showNames = localStorage.getItem("showNames") !== "false"; // default true
 
 async function panelInvoke(command: string, args?: Record<string, unknown>): Promise<void> {
   try {
     const { invoke } = await import("@tauri-apps/api/core");
     await invoke(command, args);
+  } catch {
+    // Not in Tauri context
+  }
+}
+
+async function emitShowNames(): Promise<void> {
+  try {
+    const { invoke } = await import("@tauri-apps/api/core");
+    await invoke("emit_show_names", { show: showNames });
   } catch {
     // Not in Tauri context
   }
@@ -87,6 +97,17 @@ function render(): void {
   // Footer
   const sep = document.createElement("hr");
   app.appendChild(sep);
+
+  const namesBtn = document.createElement("button");
+  namesBtn.className = showNames ? "btn active" : "btn";
+  namesBtn.textContent = showNames ? "✓ Show Names" : "Show Names";
+  namesBtn.onclick = () => {
+    showNames = !showNames;
+    localStorage.setItem("showNames", String(showNames));
+    emitShowNames();
+    render();
+  };
+  app.appendChild(namesBtn);
 
   const loginBtn = document.createElement("button");
   loginBtn.className = launchAtLogin ? "btn active" : "btn";

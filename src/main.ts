@@ -164,9 +164,17 @@ async function setupTauriEvents() {
     listen("check-update", () => {
       checkForUpdates(false);
     });
+    listen<boolean>("show-names", (event) => {
+      document.body.classList.toggle("hide-names", !event.payload);
+    });
   } catch {
     // Not running in Tauri — that's fine
   }
+}
+
+// Apply saved show-names setting on startup
+if (localStorage.getItem("showNames") === "false") {
+  document.body.classList.add("hide-names");
 }
 
 setupTauriEvents();

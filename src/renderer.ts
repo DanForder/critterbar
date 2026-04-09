@@ -9,8 +9,12 @@ export function addCritterElement(critter: Critter): void {
   el.dataset.critterId = String(critter.id);
   el.dataset.critterType = critter.type;
   el.dataset.critterName = critter.name;
-  el.title = critter.name;
   el.dataset.edge = critter.edge;
+
+  const nameLabel = document.createElement("span");
+  nameLabel.className = "critter-name";
+  nameLabel.textContent = `💭 ${critter.name}`;
+  el.appendChild(nameLabel);
   el.style.left = `${critter.x}px`;
   el.style.top = `${critter.y}px`;
   el.style.width = `${CRITTER_SIZE}px`;
