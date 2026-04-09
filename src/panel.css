@@ -53,7 +53,12 @@ html, body {
   cursor: default;
 }
 
-.remove-btn:hover:not(:disabled) {
+.btn.active {
+  background: #2d4a2d;
+  color: #a8e6a8;
+}
+
+.btn.active:hover {
   background: #5c3535;
   color: #ffaaaa;
 }

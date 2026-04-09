@@ -25,8 +25,6 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 ## Phase 2b: Quick Improvements
 - [x] Emoji rotation: critters rotate so their feet always face the screen edge they're walking on (bottom=0°, right=90°, top=180°, left=270° via CSS transform rotate)
 - [x] "Add All" menu item that adds all critter types at once
-- [x] Tray menu stays open after clicking an item (so user can add multiple critters in quick succession without reopening the menu)
-
 ## Phase 3: Better Movement & Behaviour
 - [x] Variable speed: critters occasionally speed up or slow down naturally
 - [ ] Spread spawning: new critters spawn at the position on the edges furthest from all existing critters (maximise distance from nearest critter)
@@ -55,3 +53,6 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [ ] Dark mode awareness: critters react to system dark mode (sleep more in dark mode)
 - [ ] Window awareness: critters walk along the edges of actual application windows, not just screen edges
 - [ ] Sound effects (subtle, optional): tiny footstep sounds, purring, chirping
+
+## Deferred
+- [ ] Tray menu stays open after clicking an item (macOS system tray menus close on click by default — no clean Tauri API to override)

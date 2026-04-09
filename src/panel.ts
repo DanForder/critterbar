@@ -6,15 +6,14 @@ const ALL_TYPES: CritterType[] = [
   "cat", "dog", "bird", "rabbit", "hamster", "fox", "frog", "turtle",
 ];
 
-const LABELS: Record<CritterType, string> = {
-  cat: "🐱 Cat",
-  dog: "🐶 Dog",
-  bird: "🐦 Bird",
-  rabbit: "🐰 Rabbit",
-  hamster: "🐹 Hamster",
-  fox: "🦊 Fox",
-  frog: "🐸 Frog",
-  turtle: "🐢 Turtle",
+const EMOJIS: Record<CritterType, string> = {
+  cat: "🐱", dog: "🐶", bird: "🐦", rabbit: "🐰",
+  hamster: "🐹", fox: "🦊", frog: "🐸", turtle: "🐢",
+};
+
+const NAMES: Record<CritterType, string> = {
+  cat: "Cat", dog: "Dog", bird: "Bird", rabbit: "Rabbit",
+  hamster: "Hamster", fox: "Fox", frog: "Frog", turtle: "Turtle",
 };
 
 let activeTypes = new Set<CritterType>();
@@ -32,20 +31,26 @@ function render(): void {
   const app = document.getElementById("app")!;
   app.innerHTML = "";
 
-  // Add grid (2 columns, 4 rows)
-  const addGrid = document.createElement("div");
-  addGrid.className = "add-grid";
+  // Critter toggle grid (2 columns)
+  const grid = document.createElement("div");
+  grid.className = "add-grid";
   for (const type of ALL_TYPES) {
+    const active = activeTypes.has(type);
     const btn = document.createElement("button");
-    btn.className = "btn";
-    btn.textContent = LABELS[type];
-    btn.disabled = activeTypes.has(type);
-    btn.onclick = () => panelInvoke("panel_action", { action: "add", critterType: type });
-    addGrid.appendChild(btn);
+    btn.className = active ? "btn active" : "btn";
+    btn.innerHTML = `${active ? "✓ " : ""}${EMOJIS[type]} ${NAMES[type]}`;
+    btn.onclick = () => {
+      if (active) {
+        panelInvoke("panel_action", { action: "remove", critterType: type });
+      } else {
+        panelInvoke("panel_action", { action: "add", critterType: type });
+      }
+    };
+    grid.appendChild(btn);
   }
-  app.appendChild(addGrid);
+  app.appendChild(grid);
 
-  // Random + Add All row
+  // Quick actions row
   const full = activeTypes.size === ALL_TYPES.length;
   const quickRow = document.createElement("div");
   quickRow.className = "row";
@@ -58,7 +63,7 @@ function render(): void {
 
   const allBtn = document.createElement("button");
   allBtn.className = "btn";
-  allBtn.textContent = "Add All 🌟";
+  allBtn.textContent = full ? "✓ All" : "Add All 🌟";
   allBtn.disabled = full;
   allBtn.onclick = () => panelInvoke("panel_action", { action: "add-all" });
 
@@ -66,23 +71,9 @@ function render(): void {
   quickRow.appendChild(allBtn);
   app.appendChild(quickRow);
 
-  // Active critter remove buttons
-  if (activeTypes.size > 0) {
-    const sep = document.createElement("hr");
-    app.appendChild(sep);
-    for (const type of ALL_TYPES) {
-      if (!activeTypes.has(type)) continue;
-      const btn = document.createElement("button");
-      btn.className = "btn remove-btn";
-      btn.textContent = `Remove ${LABELS[type]}`;
-      btn.onclick = () => panelInvoke("panel_action", { action: "remove", critterType: type });
-      app.appendChild(btn);
-    }
-  }
-
-  // Footer: Remove All + Quit
-  const sep2 = document.createElement("hr");
-  app.appendChild(sep2);
+  // Footer
+  const sep = document.createElement("hr");
+  app.appendChild(sep);
 
   const footRow = document.createElement("div");
   footRow.className = "row";
@@ -110,18 +101,16 @@ function render(): void {
 }
 
 async function init(): Promise<void> {
-  // Load initial critter state
   try {
     const { invoke } = await import("@tauri-apps/api/core");
     const active = await invoke<string[]>("get_active_critters");
     activeTypes = new Set(active as CritterType[]);
   } catch {
-    // Not in Tauri context — render with empty state
+    // Not in Tauri context
   }
 
   render();
 
-  // Listen for state changes from the overlay
   try {
     const { listen } = await import("@tauri-apps/api/event");
     listen<{ critter_type: string; active: boolean }>("critter-state-changed", (event) => {
