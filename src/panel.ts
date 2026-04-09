@@ -110,7 +110,7 @@ function render(): void {
 
   const artBtn = document.createElement("button");
   artBtn.className = betaArtwork ? "btn active" : "btn";
-  artBtn.textContent = betaArtwork ? "✓ Beta Artwork" : "Beta Artwork";
+  artBtn.textContent = betaArtwork ? "🎨 Sprites" : "😀 Emoji";
   artBtn.onclick = () => {
     betaArtwork = !betaArtwork;
     localStorage.setItem("betaArtwork", String(betaArtwork));
