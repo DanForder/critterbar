@@ -26,7 +26,7 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [x] Variable speed: critters occasionally speed up or slow down naturally
 
 ## Top Priority
-- [ ] **Emoji/Sprite toggle in menu**: Rename the current "Beta Artwork" button in the panel menu to a clearer "Emoji / Sprite" toggle (or proper toggle switch) that indicates which rendering mode is active. The underlying pixel-art sprite system already works — this is a label + UX clarity change. Consider a two-state switch showing 😀 Emoji ↔ 🎨 Sprite with the active mode highlighted, instead of the current single-button checkmark pattern.
+- [x] **Emoji/Sprite toggle in menu**: Rename the current "Beta Artwork" button in the panel menu to a clearer "Emoji / Sprite" toggle (or proper toggle switch) that indicates which rendering mode is active. The underlying pixel-art sprite system already works — this is a label + UX clarity change. Consider a two-state switch showing 😀 Emoji ↔ 🎨 Sprite with the active mode highlighted, instead of the current single-button checkmark pattern.
 
 ## Tech Debt
 - [ ] Migrate from deprecated `cocoa` crate to `objc2-app-kit` for NSWindow level and collection behavior (~15 lines in lib.rs)

@@ -108,16 +108,36 @@ function render(): void {
   const sep = document.createElement("hr");
   app.appendChild(sep);
 
-  const artBtn = document.createElement("button");
-  artBtn.className = betaArtwork ? "btn active" : "btn";
-  artBtn.textContent = betaArtwork ? "🎨 Sprites" : "😀 Emoji";
-  artBtn.onclick = () => {
-    betaArtwork = !betaArtwork;
-    localStorage.setItem("betaArtwork", String(betaArtwork));
-    emitBetaArtwork();
-    render();
+  const artToggle = document.createElement("div");
+  artToggle.className = "toggle-row";
+
+  const emojiSeg = document.createElement("button");
+  emojiSeg.className = betaArtwork ? "btn toggle-seg" : "btn toggle-seg active";
+  emojiSeg.textContent = "😀 Emoji";
+  emojiSeg.onclick = () => {
+    if (betaArtwork) {
+      betaArtwork = false;
+      localStorage.setItem("betaArtwork", "false");
+      emitBetaArtwork();
+      render();
+    }
   };
-  app.appendChild(artBtn);
+
+  const spriteSeg = document.createElement("button");
+  spriteSeg.className = betaArtwork ? "btn toggle-seg active" : "btn toggle-seg";
+  spriteSeg.textContent = "🎨 Sprite";
+  spriteSeg.onclick = () => {
+    if (!betaArtwork) {
+      betaArtwork = true;
+      localStorage.setItem("betaArtwork", "true");
+      emitBetaArtwork();
+      render();
+    }
+  };
+
+  artToggle.appendChild(emojiSeg);
+  artToggle.appendChild(spriteSeg);
+  app.appendChild(artToggle);
 
   const namesBtn = document.createElement("button");
   namesBtn.className = showNames ? "btn active" : "btn";

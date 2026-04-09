@@ -175,3 +175,10 @@
 - `renderer.ts` already sets `data-state` from `critter.state.kind` — no renderer changes needed
 - Added 3 unit tests: eventually falls asleep; does not move while sleeping; wakes up after sleep duration
 - Verification: 35 unit tests + 14 e2e tests, all passing
+
+### 2026-04-10 — Emoji/Sprite segmented toggle
+- Replaced single cycling art button with a two-segment toggle (😀 Emoji | 🎨 Sprite)
+- Active segment highlighted in green; inactive in normal dark style — both modes always visible
+- Added `.toggle-row` / `.toggle-seg` CSS for pill-shaped segmented control (no gap, rounded outer corners)
+- Updated e2e button count assertion: 15 → 16 (one art button split into two segments)
+- Verification: 38 unit tests + 16 e2e tests, all passing

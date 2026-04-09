@@ -72,3 +72,22 @@ hr {
   border: none;
   border-top: 1px solid #444;
 }
+
+.toggle-row {
+  display: flex;
+}
+
+.toggle-seg {
+  border-radius: 0;
+  text-align: center;
+  flex: 1;
+}
+
+.toggle-row .toggle-seg:first-child {
+  border-radius: 5px 0 0 5px;
+  border-right: 1px solid #555;
+}
+
+.toggle-row .toggle-seg:last-child {
+  border-radius: 0 5px 5px 0;
+}
