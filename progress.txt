@@ -176,6 +176,9 @@
 - Added 3 unit tests: eventually falls asleep; does not move while sleeping; wakes up after sleep duration
 - Verification: 35 unit tests + 14 e2e tests, all passing
 
+### 2026-04-10 — Migrate cocoa crate to objc2-app-kit
+2026-04-10: Replaced deprecated `cocoa` crate with `objc2-app-kit` for NSWindow setLevel/setCollectionBehavior; uses typed NSFloatingWindowLevel and NSWindowCollectionBehavior constants
+
 ### 2026-04-10 — Emoji/Sprite segmented toggle
 - Replaced single cycling art button with a two-segment toggle (😀 Emoji | 🎨 Sprite)
 - Active segment highlighted in green; inactive in normal dark style — both modes always visible

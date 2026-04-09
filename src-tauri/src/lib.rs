@@ -199,18 +199,16 @@ pub fn run() {
             // Set native NSWindow level to floating (above all normal windows)
             #[cfg(target_os = "macos")]
             {
-                use cocoa::appkit::NSWindow;
-                use cocoa::base::id;
+                use objc2_app_kit::{NSFloatingWindowLevel, NSWindow, NSWindowCollectionBehavior};
 
                 if let Ok(ns_win) = window.ns_window() {
                     unsafe {
-                        let ns_win = ns_win as id;
-                        // 3 = NSFloatingWindowLevel (same as Swift's .floating)
-                        ns_win.setLevel_(3);
-                        // Also ensure it appears on all spaces/desktops
-                        ns_win.setCollectionBehavior_(
-                            cocoa::appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorCanJoinAllSpaces
-                            | cocoa::appkit::NSWindowCollectionBehavior::NSWindowCollectionBehaviorFullScreenAuxiliary
+                        let ns_win = &*(ns_win as *const NSWindow);
+                        ns_win.setLevel(NSFloatingWindowLevel);
+                        // Appear on all spaces/desktops and in fullscreen auxiliary mode
+                        ns_win.setCollectionBehavior(
+                            NSWindowCollectionBehavior::CanJoinAllSpaces
+                                | NSWindowCollectionBehavior::FullScreenAuxiliary,
                         );
                     }
                 }
