@@ -17,23 +17,11 @@ manager.boundsProvider = () => ({
   maxY: window.innerHeight,
 });
 
-async function updateCritterMenu(type: CritterTypeName, active: boolean): Promise<void> {
+async function notifyCritterState(type: CritterTypeName, active: boolean): Promise<void> {
   if (!(window as any).__TAURI_INTERNALS__) return;
   try {
     const { invoke } = await import("@tauri-apps/api/core");
     await invoke("set_critter_active", { critterType: type, active });
-  } catch {
-    // Not in Tauri context
-  }
-}
-
-async function updateAddMenus(): Promise<void> {
-  if (!(window as any).__TAURI_INTERNALS__) return;
-  try {
-    const { invoke } = await import("@tauri-apps/api/core");
-    const hasAvailable = manager.availableTypes().length > 0;
-    await invoke("set_add_random_enabled", { enabled: hasAvailable });
-    await invoke("set_add_all_enabled", { enabled: hasAvailable });
   } catch {
     // Not in Tauri context
   }
@@ -55,8 +43,8 @@ function addCritter(type: CritterTypeName): void {
   if (manager.hasType(type)) return;
   const critter = manager.addCritter(type);
   addCritterElement(critter);
-  updateCritterMenu(type, true);
-  updateAddMenus();
+  notifyCritterState(type, true);
+
   updateTrayTitle();
 }
 
@@ -64,8 +52,8 @@ function removeCritter(type: CritterTypeName): void {
   const critter = manager.removeCritterByType(type);
   if (!critter) return;
   removeCritterElement(critter.id);
-  updateCritterMenu(type, false);
-  updateAddMenus();
+  notifyCritterState(type, false);
+
   updateTrayTitle();
 }
 
@@ -74,9 +62,9 @@ function removeAll(): void {
   removeAllCritterElements();
   manager.removeAll();
   for (const type of activeTypes) {
-    updateCritterMenu(type, false);
+    notifyCritterState(type, false);
   }
-  updateAddMenus();
+
   updateTrayTitle();
 }
 
