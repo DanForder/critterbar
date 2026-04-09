@@ -232,7 +232,7 @@ pub fn run() {
             let add_all     = MenuItem::with_id(app, "add-all",     "Add All 🌟",     true, None::<&str>)?;
             let remove_all  = MenuItem::with_id(app, "remove-all",  "Remove All",     true, None::<&str>)?;
             let check_update = MenuItem::with_id(app, "check-update", "Check for Updates", true, None::<&str>)?;
-            let version     = MenuItem::with_id(app, "version", format!("v{}", env!("CARGO_PKG_VERSION")), false, None::<&str>)?;
+            let version     = MenuItem::with_id(app, "version", format!("v{}", app.config().version.as_deref().unwrap_or("?")), false, None::<&str>)?;
             let quit        = MenuItem::with_id(app, "quit",        "Quit",           true, None::<&str>)?;
 
             // Store all toggleable items for live enable/disable
