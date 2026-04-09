@@ -176,10 +176,10 @@ test.describe("Critterbar", () => {
 
   test("critter rotation matches its edge", async ({ page }) => {
     const edgeRotations: Record<string, string> = {
-      bottom: "0deg",
-      right: "90deg",
-      top: "180deg",
-      left: "270deg",
+      bottom: "180deg",
+      right: "270deg",
+      top: "0deg",
+      left: "90deg",
     };
 
     await page.evaluate(() => (window as any).critterbar.addCritter("cat"));

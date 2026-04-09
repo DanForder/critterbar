@@ -18,10 +18,10 @@ html, body {
   z-index: 9999;
 }
 
-.critter[data-edge="bottom"] { rotate: 0deg; }
-.critter[data-edge="right"]  { rotate: 90deg; }
-.critter[data-edge="top"]    { rotate: 180deg; }
-.critter[data-edge="left"]   { rotate: 270deg; }
+.critter[data-edge="bottom"] { rotate: 180deg; }
+.critter[data-edge="right"]  { rotate: 270deg; }
+.critter[data-edge="top"]    { rotate: 0deg; }
+.critter[data-edge="left"]   { rotate: 90deg; }
 
 @keyframes sniff-wiggle {
   0%   { transform: translateX(0); }
