@@ -119,6 +119,44 @@ export class CritterManager {
     for (const critter of this.critters) {
       critter.update(deltaTime, bounds);
     }
+    this.resolveCollisions();
+  }
+
+  private resolveCollisions(): void {
+    const collisionDist = CRITTER_SIZE;
+
+    for (let i = 0; i < this.critters.length; i++) {
+      for (let j = i + 1; j < this.critters.length; j++) {
+        const a = this.critters[i];
+        const b = this.critters[j];
+
+        // Only collide on the same edge, and both must be walking
+        if (a.edge !== b.edge) continue;
+        if (a.state.kind !== "walking" || b.state.kind !== "walking") continue;
+
+        // 1D distance along the edge
+        const isHorizontal = a.edge === "bottom" || a.edge === "top";
+        const posA = isHorizontal ? a.x : a.y;
+        const posB = isHorizontal ? b.x : b.y;
+        const dist = Math.abs(posA - posB);
+
+        if (dist < collisionDist) {
+          // Reverse both directions
+          a.movingForward = !a.movingForward;
+          b.movingForward = !b.movingForward;
+
+          // Nudge apart so they don't re-collide next frame
+          const nudge = (collisionDist - dist) / 2 + 1;
+          if (posA < posB) {
+            if (isHorizontal) { a.x -= nudge; b.x += nudge; }
+            else              { a.y -= nudge; b.y += nudge; }
+          } else {
+            if (isHorizontal) { a.x += nudge; b.x -= nudge; }
+            else              { a.y += nudge; b.y -= nudge; }
+          }
+        }
+      }
+    }
   }
 
   get count(): number {

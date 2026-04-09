@@ -172,6 +172,51 @@ describe("CritterManager", () => {
     expect(c2.y).toBe(0);
   });
 
+  it("critters on the same edge reverse direction on collision", () => {
+    const m = createManager();
+    // Place two critters on the bottom edge heading toward each other
+    const a = m.addCritterAtPosition("cat", 100, 0, "bottom", true);  // moving right
+    const b = m.addCritterAtPosition("dog", 110, 0, "bottom", false); // moving left
+
+    m.update(1 / 60);
+
+    // They should have reversed
+    expect(a.movingForward).toBe(false);
+    expect(b.movingForward).toBe(true);
+    // And been nudged apart
+    expect(b.x - a.x).toBeGreaterThanOrEqual(24);
+  });
+
+  it("critters on different edges do not collide", () => {
+    const m = createManager();
+    const a = m.addCritterAtPosition("cat", 100, 0, "bottom", true);
+    const b = m.addCritterAtPosition("dog", 100, 0, "top", false); // different edge, same coords
+
+    const dirA = a.movingForward;
+    const dirB = b.movingForward;
+    m.update(1 / 60);
+
+    // Directions unchanged by collision (may change due to corner logic but not collision)
+    // At position 100 they're not near corners, so direction should stay
+    expect(a.movingForward).toBe(dirA);
+    expect(b.movingForward).toBe(dirB);
+  });
+
+  it("sniffing critters do not trigger collisions", () => {
+    const m = createManager();
+    const a = m.addCritterAtPosition("cat", 100, 0, "bottom", true);
+    const b = m.addCritterAtPosition("dog", 110, 0, "bottom", false);
+
+    // Force one to sniff
+    (a as any).state = { kind: "sniffing", remaining: 2 };
+
+    const dirB = b.movingForward;
+    m.update(1 / 60);
+
+    // No collision because a is sniffing
+    expect(b.movingForward).toBe(dirB);
+  });
+
   it("spread spawning places third critter far from both existing critters", () => {
     const m = createManager();
     m.addCritter("cat");
