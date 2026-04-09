@@ -1,8 +1,9 @@
 name: Auto-tag on version bump
 
 # Creates a v{version} tag whenever package.json's version on main
-# doesn't yet have a matching tag. The tag push then triggers
-# release.yml which builds and publishes the GitHub release.
+# doesn't yet have a matching tag, then immediately triggers release.yml
+# via `gh workflow run` (tag pushes made with GITHUB_TOKEN do not fire
+# downstream workflows due to GitHub's loop-prevention policy).
 
 on:
   push:
@@ -17,12 +18,15 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Tag if package.json version has no matching tag
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           VERSION=$(jq -r .version package.json)
           TAG="v${VERSION}"
@@ -33,3 +37,5 @@ jobs:
           echo "Creating tag ${TAG} at $(git rev-parse HEAD)"
           git tag "${TAG}"
           git push origin "${TAG}"
+          echo "Triggering release.yml for ${TAG}"
+          gh workflow run release.yml --ref "${TAG}"
