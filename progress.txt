@@ -154,6 +154,17 @@
 - No new tests needed: update flow requires a live update server, not exercisable via Playwright
 - Verification: 32 unit tests + 14 e2e tests, all passing
 
+### 2026-04-09 — Critter Names on Hover
+- Added `NAME_POOLS` per critter type (8 themed names each) and `generateName(type)` to `critter.ts`
+- Added `name: string` field to `Critter`; generated in constructor from pool (or supplied explicitly for restore)
+- Updated `SavedCritterState` in `main.ts` to include `name`; `saveActiveCritters` persists name, `restoreActiveCritters` passes it to `addCritterAtPosition`
+- Updated `addCritterAtPosition` in `CritterManager` to accept optional `name` parameter
+- `renderer.ts` now sets `el.title = critter.name` and `el.dataset.critterName` on each critter element
+- Changed `.critter { pointer-events: none }` to `pointer-events: auto` so browser hover events fire and the `title` tooltip is shown (Tauri overlay uses OS-level `set_ignore_cursor_events`, so CSS pointer-events don't affect click-through)
+- Added 3 unit tests: name is non-empty for every type; explicit name is preserved; `generateName` works for all types
+- Added 2 e2e tests: `data-critter-name` attribute is set and non-empty; name is identical after page reload
+- Verification: 38 unit tests + 16 e2e tests, all passing
+
 ### 2026-04-09 — Sleep State
 - Added `sleeping` to `CritterState` union type: `{ kind: "sleeping"; remaining: number }`
 - After a sniff ends, 20% chance critter falls asleep (10-20s duration) instead of resuming walking

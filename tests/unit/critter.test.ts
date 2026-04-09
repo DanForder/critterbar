@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Critter, CritterBounds, CRITTER_TYPES, CRITTER_SIZE } from "../../src/critter";
+import { Critter, CritterBounds, CRITTER_TYPES, CRITTER_SIZE, generateName } from "../../src/critter";
 
 describe("Critter", () => {
   const bounds: CritterBounds = { minX: 0, minY: 0, maxX: 1000, maxY: 800 };
@@ -282,6 +282,29 @@ describe("Critter", () => {
     for (let i = 0; i < 1000; i++) {
       c.update(1 / 30, bounds);
       expect(c.emoji).toBe("🐱");
+    }
+  });
+
+  it("critter gets a non-empty name on creation", () => {
+    const types = ["cat", "dog", "bird", "rabbit", "hamster", "fox", "frog", "turtle"] as const;
+    for (const type of types) {
+      const c = new Critter(type, 100, 100);
+      expect(typeof c.name).toBe("string");
+      expect(c.name.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("name is preserved when provided explicitly", () => {
+    const c = new Critter("cat", 100, 100, "Captain Whiskers");
+    expect(c.name).toBe("Captain Whiskers");
+  });
+
+  it("generateName returns a non-empty string for each type", () => {
+    const types = ["cat", "dog", "bird", "rabbit", "hamster", "fox", "frog", "turtle"] as const;
+    for (const type of types) {
+      const name = generateName(type);
+      expect(typeof name).toBe("string");
+      expect(name.length).toBeGreaterThan(0);
     }
   });
 });

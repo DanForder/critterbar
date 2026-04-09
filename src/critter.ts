@@ -1,5 +1,21 @@
 export type CritterTypeName = "cat" | "dog" | "bird" | "rabbit" | "hamster" | "fox" | "frog" | "turtle";
 
+const NAME_POOLS: Record<CritterTypeName, string[]> = {
+  cat:     ["Captain Whiskers", "Purrlock Holmes", "Whisker the Wizard", "Meowgician", "Sir Pounce-a-Lot", "Meowrio", "Clawdia", "Cat-a-pult"],
+  dog:     ["Sir Barksalot", "Indiana Bones", "Chewbarka", "Pawadin", "Bark the Barbarian", "Dogmeat", "K-9", "Woofgang"],
+  bird:    ["Chirpy McChirpface", "Hawkward the Ranger", "Talon Darkbeak", "Flappy Bird", "Kazooie", "Falco", "Nest.js", "Robin Hood"],
+  rabbit:  ["Hop Solo", "Bunnomancer", "Hare of Holding", "Thumper the Rogue", "Critical Hop", "/bin/bunny", "Thumper McFluff", "Bunzilla"],
+  hamster: ["Boo", "Hamster of Vecna", "Squeakthief", "Sir Squeaks", "Nibbles", "sudo squeak", "Hamtaro", "Wheel of Fortune"],
+  fox:     ["Firefox", "Sly Cooper", "Reynard the Trickster", "Foxblade", "Star Fox", "Tails", "Fox Mulder", "Vulpix the Sorcerer"],
+  frog:    ["Frogger", "Battletoads", "Frogmire the Warlock", "Grung Overlord", "Sir Hopsalot", "Toadally Awesome", "Kermit the Vibes", "Chrono Toad"],
+  turtle:  ["Tortle Monk", "Shellazar the Wise", "Bowser", "Koopa Troopa", "Shelly McShellface", "Tortellini", "Turbo the Slow", "Shell Script"],
+};
+
+export function generateName(type: CritterTypeName): string {
+  const pool = NAME_POOLS[type];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 export const CRITTER_TYPES: Record<
   CritterTypeName,
   { emoji: string; speed: number }
@@ -40,6 +56,7 @@ export class Critter {
   readonly type: CritterTypeName;
   readonly emoji: string;
   readonly baseSpeed: number;
+  readonly name: string;
 
   x: number;
   y: number;
@@ -53,12 +70,13 @@ export class Critter {
   private speedTimer = 0;
   private nextSpeedChangeIn: number;
 
-  constructor(type: CritterTypeName, x: number, y: number) {
+  constructor(type: CritterTypeName, x: number, y: number, name?: string) {
     this.id = nextId++;
     this.type = type;
     this.emoji = CRITTER_TYPES[type].emoji;
     this.baseSpeed = CRITTER_TYPES[type].speed;
     this.speed = this.baseSpeed;
+    this.name = name ?? generateName(type);
     this.x = x;
     this.y = y;
 

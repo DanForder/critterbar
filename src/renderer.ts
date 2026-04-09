@@ -8,6 +8,8 @@ export function addCritterElement(critter: Critter): void {
   el.textContent = critter.emoji;
   el.dataset.critterId = String(critter.id);
   el.dataset.critterType = critter.type;
+  el.dataset.critterName = critter.name;
+  el.title = critter.name;
   el.dataset.edge = critter.edge;
   el.style.left = `${critter.x}px`;
   el.style.top = `${critter.y}px`;

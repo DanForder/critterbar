@@ -225,6 +225,26 @@ test.describe("Critterbar", () => {
     }
   });
 
+  test("critter has a name set as data-critter-name attribute", async ({ page }) => {
+    await page.evaluate(() => (window as any).critterbar.addCritter("cat"));
+    const critter = page.locator('[data-critter-type="cat"]');
+    const name = await critter.getAttribute("data-critter-name");
+    expect(name).toBeTruthy();
+    expect(name!.length).toBeGreaterThan(0);
+  });
+
+  test("critter name persists after page reload", async ({ page }) => {
+    await page.evaluate(() => (window as any).critterbar.addCritter("dog"));
+    const name1 = await page.locator('[data-critter-type="dog"]').getAttribute("data-critter-name");
+    expect(name1).toBeTruthy();
+
+    await page.reload();
+    await page.waitForFunction(() => (window as any).critterbar !== undefined);
+
+    const name2 = await page.locator('[data-critter-type="dog"]').getAttribute("data-critter-name");
+    expect(name2).toBe(name1);
+  });
+
   test("no rapid edge flicking at corners", async ({ page }) => {
     // Use a small viewport so critters hit corners quickly
     await page.setViewportSize({ width: 200, height: 200 });

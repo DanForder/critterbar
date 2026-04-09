@@ -34,6 +34,7 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [x] **Persist critter positions**: save full critter state (x, y, edge, direction) between app launches, not just types — currently critters get reshuffled on quit/reopen
 - [x] **Auto-restart after update**: clicking Check for Updates should auto-download and auto-restart seamlessly (no manual "Restart to update" step) — critters are persisted so restart is safe
 - [x] Sleep state: critters that haven't moved for a long time fall asleep (zzz overlay), wake up after a bit
+- [x] **Critter names on hover**: each critter gets a randomly generated cute name (e.g. "Captain Whiskers", "Sir Hopsalot") shown as a tooltip on hover. Name should persist between app launches (save with critter state). Each critter type should have a themed name pool.
 - [ ] Proximity awareness: critters notice when another critter is nearby (within ~100px)
 - [ ] Following behavior: some critter types follow others when close (e.g. dog follows cat)
 - [ ] Smoother direction changes with easing instead of instant snaps
@@ -47,7 +48,6 @@ A macOS menu bar app that puts little emoji critters on your screen. They wander
 - [ ] Idle/sniff/sleep sprite variations
 - [ ] Menu bar notch awareness: critters walk right up to the camera notch and around it on notched MacBooks, and to the full top edge on non-notched Macs
 - [ ] Custom DMG installer: branded background image with "drag to Applications" arrow, positioned app + Applications icons, custom volume icon
-- [ ] Critter names: each critter gets a randomly generated name shown on hover
 - [ ] Critter moods: happy, sleepy, excited — affects behavior and emoji expression
 - [ ] Dark mode awareness: critters react to system dark mode (sleep more in dark mode)
 - [ ] Window awareness: critters walk along the edges of actual application windows, not just screen edges

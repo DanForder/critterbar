@@ -29,8 +29,8 @@ export class CritterManager {
     return critter;
   }
 
-  addCritterAtPosition(type: CritterTypeName, x: number, y: number, edge: Edge, movingForward: boolean): Critter {
-    const critter = new Critter(type, x, y);
+  addCritterAtPosition(type: CritterTypeName, x: number, y: number, edge: Edge, movingForward: boolean, name?: string): Critter {
+    const critter = new Critter(type, x, y, name);
     critter.edge = edge;
     critter.movingForward = movingForward;
     this.critters.push(critter);

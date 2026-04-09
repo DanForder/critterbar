@@ -45,6 +45,7 @@ interface SavedCritterState {
   y: number;
   edge: Edge;
   movingForward: boolean;
+  name?: string;
 }
 
 function saveActiveCritters(): void {
@@ -54,6 +55,7 @@ function saveActiveCritters(): void {
     y: c.y,
     edge: c.edge,
     movingForward: c.movingForward,
+    name: c.name,
   }));
   localStorage.setItem("activeCritters", JSON.stringify(states));
 }
@@ -71,7 +73,7 @@ function restoreActiveCritters(): void {
       } else if (item && typeof (item as SavedCritterState).type === "string") {
         const s = item as SavedCritterState;
         if (manager.hasType(s.type)) continue;
-        const critter = manager.addCritterAtPosition(s.type, s.x, s.y, s.edge, s.movingForward);
+        const critter = manager.addCritterAtPosition(s.type, s.x, s.y, s.edge, s.movingForward, s.name);
         addCritterElement(critter);
         notifyCritterState(s.type, true);
         updateTrayTitle();
