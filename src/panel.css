@@ -1,0 +1,69 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: #2c2c2c;
+  color: #ececec;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-size: 13px;
+}
+
+#app {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.add-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+}
+
+.row {
+  display: flex;
+  gap: 3px;
+}
+
+.btn {
+  background: #3c3c3c;
+  color: #ececec;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn:hover:not(:disabled) {
+  background: #505050;
+}
+
+.btn:disabled {
+  color: #666;
+  cursor: default;
+}
+
+.remove-btn:hover:not(:disabled) {
+  background: #5c3535;
+  color: #ffaaaa;
+}
+
+.danger-btn:hover:not(:disabled) {
+  background: #5c3535;
+  color: #ffaaaa;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #444;
+}

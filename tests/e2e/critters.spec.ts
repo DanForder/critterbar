@@ -195,6 +195,22 @@ test.describe("Critterbar", () => {
     }
   });
 
+  test("panel renders add buttons for all critter types", async ({ page }) => {
+    await page.goto("/panel.html");
+    await page.waitForLoadState("networkidle");
+
+    // 8 add buttons + Random + Add All + Remove All + Quit = 12
+    const buttons = page.locator(".btn");
+    await expect(buttons).toHaveCount(12, { timeout: 3000 });
+
+    // All 8 add buttons should be enabled (no active critters without Tauri)
+    for (const type of ["cat", "dog", "bird", "rabbit", "hamster", "fox", "frog", "turtle"]) {
+      const label = { cat: "🐱 Cat", dog: "🐶 Dog", bird: "🐦 Bird", rabbit: "🐰 Rabbit",
+        hamster: "🐹 Hamster", fox: "🦊 Fox", frog: "🐸 Frog", turtle: "🐢 Turtle" }[type]!;
+      await expect(page.locator(".btn", { hasText: label })).not.toBeDisabled();
+    }
+  });
+
   test("no rapid edge flicking at corners", async ({ page }) => {
     // Use a small viewport so critters hit corners quickly
     await page.setViewportSize({ width: 200, height: 200 });

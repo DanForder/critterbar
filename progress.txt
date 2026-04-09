@@ -75,6 +75,19 @@
 - Added 2 unit tests: "speed varies over simulated time" and "speed stays within 0.5x–1.5x of base speed"
 - Verification: 28 unit tests + 11 e2e tests, all passing
 
+### 2026-04-09 — Phase 2b: Persistent Panel (tray menu stays open)
+- Replaced native left-click tray menu with a custom floating panel window (`panel.html`)
+- Panel shows add buttons for all 8 critter types (disabled when active), Random, Add All, individual remove buttons for active critters, Remove All, and Quit
+- Panel toggles open/closed on tray left-click; right-click still shows native context menu
+- Panel positions itself below the tray icon using logical coordinates (scale-factor aware)
+- Panel auto-resizes its window height to fit content via `resize_panel` Tauri command
+- Panel state stays in sync with overlay via `critter-state-changed` events emitted by `set_critter_active`
+- `get_active_critters` command reads enabled/disabled state of remove-X menu items
+- `panel_action` command routes add/remove/quit actions from panel to the overlay
+- Vite configured as multi-page build: `index.html` (overlay) + `panel.html` (panel)
+- Added e2e test verifying panel renders 12 buttons in non-Tauri (Playwright) context
+- Verification: 28 unit tests + 13 e2e tests, all passing
+
 ### 2026-04-09 — Phase 2b: Emoji Rotation
 - Added CSS `rotate` individual property rules per `data-edge` attribute in style.css
 - bottom=0deg, right=90deg, top=180deg, left=270deg — feet always face the screen edge

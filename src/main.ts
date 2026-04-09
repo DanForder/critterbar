@@ -128,6 +128,9 @@ async function setupTauriEvents() {
     listen("add-all", () => {
       addAllCritters();
     });
+    listen("check-update", () => {
+      handleUpdateMenuClick();
+    });
   } catch {
     // Not running in Tauri — that's fine
   }
@@ -135,22 +138,48 @@ async function setupTauriEvents() {
 
 setupTauriEvents();
 
-// Check for updates on startup (only in Tauri)
-async function checkForUpdates() {
+// Update management
+let updateReady = false;
+
+async function setUpdateMenuText(text: string) {
+  const { invoke } = await import("@tauri-apps/api/core");
+  await invoke("set_update_menu_text", { text });
+}
+
+async function checkForUpdates(silent = true) {
   if (!(window as any).__TAURI_INTERNALS__) return;
   try {
     const { check } = await import("@tauri-apps/plugin-updater");
+    if (!silent) await setUpdateMenuText("Checking...");
     const update = await check();
     if (update) {
-      // Download and install silently — takes effect on next app launch
+      await setUpdateMenuText(`Downloading v${update.version}...`);
       await update.downloadAndInstall();
+      updateReady = true;
+      await setUpdateMenuText(`✓ Restart to update (v${update.version})`);
+    } else if (!silent) {
+      await setUpdateMenuText("No updates available");
+      setTimeout(() => setUpdateMenuText("Check for Updates"), 3000);
     }
   } catch {
-    // Update check failed silently — that's fine
+    if (!silent) {
+      await setUpdateMenuText("Update check failed");
+      setTimeout(() => setUpdateMenuText("Check for Updates"), 3000);
+    }
   }
 }
 
-checkForUpdates();
+async function handleUpdateMenuClick() {
+  if (updateReady) {
+    const { relaunch } = await import("@tauri-apps/plugin-process");
+    await relaunch();
+  } else {
+    checkForUpdates(false);
+  }
+}
+
+// Silent check on startup
+checkForUpdates(true);
 
 // Animation loop
 let lastTime = performance.now();

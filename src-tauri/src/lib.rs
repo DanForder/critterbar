@@ -2,25 +2,42 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem},
-    tray::TrayIconBuilder,
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     webview::WebviewWindowBuilder,
     Emitter, Manager, State, WebviewUrl,
 };
 
 struct MenuItems(Mutex<HashMap<String, MenuItem<tauri::Wry>>>);
 
+#[derive(Clone, serde::Serialize)]
+struct CritterStateChanged {
+    critter_type: String,
+    active: bool,
+}
+
 #[tauri::command]
-fn set_critter_active(state: State<'_, MenuItems>, critter_type: String, active: bool) {
+fn set_critter_active(
+    app: tauri::AppHandle,
+    state: State<'_, MenuItems>,
+    critter_type: String,
+    active: bool,
+) {
     if let Ok(items) = state.0.lock() {
-        // Disable "add" item when critter is active
         if let Some(item) = items.get(&format!("add-{}", critter_type)) {
             let _ = item.set_enabled(!active);
         }
-        // Enable "remove" item when critter is active
         if let Some(item) = items.get(&format!("remove-{}", critter_type)) {
             let _ = item.set_enabled(active);
         }
     }
+    // Notify panel of state change
+    let _ = app.emit(
+        "critter-state-changed",
+        CritterStateChanged {
+            critter_type,
+            active,
+        },
+    );
 }
 
 #[tauri::command]
@@ -48,11 +65,90 @@ fn set_tray_title(app: tauri::AppHandle, title: String) {
     }
 }
 
+#[tauri::command]
+fn get_active_critters(state: State<'_, MenuItems>) -> Vec<String> {
+    let types = ["cat", "dog", "bird", "rabbit", "hamster", "fox", "frog", "turtle"];
+    if let Ok(items) = state.0.lock() {
+        types
+            .iter()
+            .filter(|t| {
+                items
+                    .get(&format!("remove-{}", t))
+                    .and_then(|item| item.is_enabled().ok())
+                    .unwrap_or(false)
+            })
+            .map(|t| t.to_string())
+            .collect()
+    } else {
+        vec![]
+    }
+}
+
+#[tauri::command]
+fn panel_action(app: tauri::AppHandle, action: String, critter_type: Option<String>) {
+    match action.as_str() {
+        "add" => {
+            if let Some(t) = critter_type {
+                let _ = app.emit("add-critter", t);
+            }
+        }
+        "remove" => {
+            if let Some(t) = critter_type {
+                let _ = app.emit("remove-critter", t);
+            }
+        }
+        "add-random" => {
+            let _ = app.emit("add-random", ());
+        }
+        "add-all" => {
+            let _ = app.emit("add-all", ());
+        }
+        "remove-all" => {
+            let _ = app.emit("remove-all", ());
+        }
+        "quit" => {
+            app.exit(0);
+        }
+        _ => {}
+    }
+}
+
+#[tauri::command]
+fn set_update_menu_text(state: State<'_, MenuItems>, text: String) {
+    if let Ok(items) = state.0.lock() {
+        if let Some(item) = items.get("check-update") {
+            let _ = item.set_text(&text);
+            // Change the ID behavior: if text indicates restart, the menu event handler
+            // checks the current text to decide whether to restart or check
+        }
+    }
+}
+
+#[tauri::command]
+fn resize_panel(app: tauri::AppHandle, height: u32) {
+    if let Some(panel) = app.get_webview_window("panel") {
+        let _ = panel.set_size(tauri::Size::Logical(tauri::LogicalSize {
+            width: 220.0,
+            height: height as f64,
+        }));
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![set_critter_active, set_add_random_enabled, set_add_all_enabled, set_tray_title])
+        .plugin(tauri_plugin_process::init())
+        .invoke_handler(tauri::generate_handler![
+            set_critter_active,
+            set_add_random_enabled,
+            set_add_all_enabled,
+            set_tray_title,
+            get_active_critters,
+            panel_action,
+            resize_panel,
+            set_update_menu_text,
+        ])
         .setup(|app| {
             // Hide from dock (menu bar only)
             #[cfg(target_os = "macos")]
@@ -99,6 +195,21 @@ pub fn run() {
                 }
             }
 
+            // Create panel window (hidden initially — shown on tray left-click)
+            let _panel = WebviewWindowBuilder::new(
+                app,
+                "panel",
+                WebviewUrl::App("panel.html".into()),
+            )
+            .decorations(false)
+            .always_on_top(true)
+            .resizable(false)
+            .shadow(true)
+            .skip_taskbar(true)
+            .visible(false)
+            .inner_size(220.0, 150.0)
+            .build()?;
+
             // Build tray menu — "Remove X" items are disabled until that critter is active
             let remove_cat     = MenuItem::with_id(app, "remove-cat",     "Remove Cat 🐱",     false, None::<&str>)?;
             let remove_dog     = MenuItem::with_id(app, "remove-dog",     "Remove Dog 🐶",     false, None::<&str>)?;
@@ -120,6 +231,8 @@ pub fn run() {
             let add_random  = MenuItem::with_id(app, "add-random",  "Add Random 🎲",  true, None::<&str>)?;
             let add_all     = MenuItem::with_id(app, "add-all",     "Add All 🌟",     true, None::<&str>)?;
             let remove_all  = MenuItem::with_id(app, "remove-all",  "Remove All",     true, None::<&str>)?;
+            let check_update = MenuItem::with_id(app, "check-update", "Check for Updates", true, None::<&str>)?;
+            let version     = MenuItem::with_id(app, "version", format!("v{}", env!("CARGO_PKG_VERSION")), false, None::<&str>)?;
             let quit        = MenuItem::with_id(app, "quit",        "Quit",           true, None::<&str>)?;
 
             // Store all toggleable items for live enable/disable
@@ -142,6 +255,7 @@ pub fn run() {
             item_map.insert("add-turtle".to_string(),     add_turtle.clone());
             item_map.insert("add-random".to_string(),     add_random.clone());
             item_map.insert("add-all".to_string(),        add_all.clone());
+            item_map.insert("check-update".to_string(),   check_update.clone());
             app.manage(MenuItems(Mutex::new(item_map)));
 
             let menu = Menu::with_items(
@@ -169,16 +283,50 @@ pub fn run() {
                     &PredefinedMenuItem::separator(app)?,
                     &remove_all,
                     &PredefinedMenuItem::separator(app)?,
+                    &check_update,
+                    &version,
                     &quit,
                 ],
             )?;
 
             let _tray = TrayIconBuilder::with_id("main")
                 .menu(&menu)
-                .show_menu_on_left_click(true)
+                .show_menu_on_left_click(false)
                 .icon(app.default_window_icon().unwrap().clone())
                 .title("🐾")
-                .tooltip("Critterbar")
+                .tooltip("Critterbar — click to open, right-click for menu")
+                .on_tray_icon_event(|tray, event| {
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        position,
+                        ..
+                    } = event
+                    {
+                        let app = tray.app_handle();
+                        if let Some(panel) = app.get_webview_window("panel") {
+                            if panel.is_visible().unwrap_or(false) {
+                                let _ = panel.hide();
+                            } else {
+                                // Position panel below tray icon, centered on click x
+                                let scale = app
+                                    .get_webview_window("overlay")
+                                    .and_then(|w| w.scale_factor().ok())
+                                    .unwrap_or(2.0);
+                                let logical_x = (position.x / scale) - 110.0;
+                                let logical_y = 24.0_f64;
+                                let _ = panel.set_position(tauri::Position::Logical(
+                                    tauri::LogicalPosition {
+                                        x: logical_x.max(0.0),
+                                        y: logical_y,
+                                    },
+                                ));
+                                let _ = panel.show();
+                                let _ = panel.set_focus();
+                            }
+                        }
+                    }
+                })
                 .on_menu_event(move |app, event| {
                     match event.id.as_ref() {
                         "remove-cat"     => { let _ = app.emit("remove-critter", "cat"); }
@@ -200,6 +348,7 @@ pub fn run() {
                         "add-random"  => { let _ = app.emit("add-random", ()); }
                         "add-all"     => { let _ = app.emit("add-all", ()); }
                         "remove-all"  => { let _ = app.emit("remove-all", ()); }
+                        "check-update" => { let _ = app.emit("check-update", ()); }
                         "quit"        => { app.exit(0); }
                         _ => {}
                     }
