@@ -195,13 +195,27 @@ test.describe("Critterbar", () => {
     }
   });
 
+  test("active critters are restored after page reload", async ({ page }) => {
+    await page.evaluate(() => (window as any).critterbar.addCritter("cat"));
+    await page.evaluate(() => (window as any).critterbar.addCritter("dog"));
+    await expect(page.locator("[data-critter-type]")).toHaveCount(2);
+
+    // Reload simulates app relaunch — localStorage persists
+    await page.reload();
+    await page.waitForFunction(() => (window as any).critterbar !== undefined);
+
+    await expect(page.locator('[data-critter-type="cat"]')).toBeVisible();
+    await expect(page.locator('[data-critter-type="dog"]')).toBeVisible();
+    await expect(page.locator("[data-critter-type]")).toHaveCount(2);
+  });
+
   test("panel renders add buttons for all critter types", async ({ page }) => {
     await page.goto("/panel.html");
     await page.waitForLoadState("networkidle");
 
-    // 8 add buttons + Random + Add All + Remove All + Quit = 12
+    // 8 add buttons + Random + Add All + Launch at Login + Remove All + Quit = 13
     const buttons = page.locator(".btn");
-    await expect(buttons).toHaveCount(12, { timeout: 3000 });
+    await expect(buttons).toHaveCount(13, { timeout: 3000 });
 
     // All 8 add buttons should be enabled (no active critters without Tauri)
     for (const type of ["cat", "dog", "bird", "rabbit", "hamster", "fox", "frog", "turtle"]) {

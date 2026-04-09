@@ -136,4 +136,42 @@ describe("CritterManager", () => {
     }
     expect(m.availableTypes().length).toBe(0);
   });
+
+  it("spread spawning places second critter far from the first", () => {
+    const m = createManager();
+    m.addCritter("cat");
+    // Force first critter to bottom-left corner
+    m.critters[0].x = 0;
+    m.critters[0].y = 0;
+    m.critters[0].edge = "bottom";
+
+    const c2 = m.addCritter("dog");
+    const dist = Math.sqrt(c2.x * c2.x + c2.y * c2.y);
+    // In 1920x1080 bounds, furthest reachable point from (0,0) is ~2168px; expect at least 800px
+    expect(dist).toBeGreaterThan(800);
+  });
+
+  it("spread spawning places third critter far from both existing critters", () => {
+    const m = createManager();
+    m.addCritter("cat");
+    // Force first critter to bottom-left corner
+    m.critters[0].x = 0;
+    m.critters[0].y = 0;
+    m.critters[0].edge = "bottom";
+
+    m.addCritter("dog");
+    // Force second critter to top-right corner
+    m.critters[1].x = bounds.maxX - 24;
+    m.critters[1].y = bounds.maxY - 24;
+    m.critters[1].edge = "top";
+
+    const c3 = m.addCritter("bird");
+    // Both corners occupied — third should land roughly in the middle of an edge
+    // Minimum distance from both corners should be at least 500px
+    const dist0 = Math.sqrt(c3.x * c3.x + c3.y * c3.y);
+    const dx1 = c3.x - (bounds.maxX - 24);
+    const dy1 = c3.y - (bounds.maxY - 24);
+    const dist1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+    expect(Math.min(dist0, dist1)).toBeGreaterThan(500);
+  });
 });

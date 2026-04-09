@@ -94,3 +94,36 @@
 - CSS `rotate` property composes independently with `transform`, so sniff-wiggle animation is unaffected
 - Added e2e test "critter rotation matches its edge" that samples edge+computed rotate style 5 times
 - Verification: 28 unit tests + 12 e2e tests, all passing
+
+### 2026-04-09 — Persist Active Critters Between Launches
+- Added `saveActiveCritters()` in main.ts: writes `JSON.stringify(activeTypes)` to localStorage key `activeCritters`
+- Added `restoreActiveCritters()` in main.ts: reads localStorage on startup and calls `addCritter` for each saved type
+- `saveActiveCritters()` is called in `addCritter`, `removeCritter`, and `removeAll` to keep the store in sync
+- `restoreActiveCritters()` is called once after `setupTauriEvents()` at startup
+- localStorage persists across Tauri WebView restarts automatically — no plugin needed
+- Added e2e test "active critters are restored after page reload": adds cat+dog, reloads page, asserts both are visible
+- Verification: 28 unit tests + 14 e2e tests, all passing
+
+### 2026-04-09 — Panel Auto-Hide on Blur
+- Added `on_window_event` listener on the panel `WebviewWindow` in lib.rs
+- When `WindowEvent::Focused(false)` fires, the panel is hidden automatically
+- Covers clicking outside the panel (desktop, other app windows) to dismiss it
+- No new tests needed: this is native OS window behaviour, not exercisable via Playwright
+- Verification: 28 unit tests + 13 e2e tests, all passing
+
+### 2026-04-09 — Launch at Login
+- Added `tauri-plugin-autostart = "2"` dependency to Cargo.toml (MacosLauncher::LaunchAgent)
+- Added `get_launch_at_login` and `set_launch_at_login` Tauri commands in lib.rs
+- Plugin registered with `.plugin(tauri_plugin_autostart::init(...))` in the builder chain
+- Panel UI: added "Launch at Login" toggle button in footer (✓ checkmark style when enabled)
+- `init()` in panel.ts fetches initial autostart state alongside active critters via Promise.all
+- Updated e2e panel button count assertion: 12 → 13 (added Launch at Login button)
+- Verification: 30 unit tests + 14 e2e tests, all passing
+
+### 2026-04-09 — Spread Spawning
+- `CritterManager.addCritter` now uses spread spawning when at least one critter already exists
+- `bestSpawnPoint(bounds)` samples 100 candidate positions around the full screen perimeter
+- Picks the position that maximises min-distance to any existing critter (furthest from all critters)
+- First critter still uses random edge placement (no existing critters to spread from)
+- Added 2 unit tests: second critter >800px from forced bottom-left first critter; third critter >500px from both occupied corners
+- Verification: 30 unit tests + 14 e2e tests, all passing

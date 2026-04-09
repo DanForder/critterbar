@@ -39,12 +39,30 @@ async function updateTrayTitle(): Promise<void> {
   }
 }
 
+function saveActiveCritters(): void {
+  const types = manager.critters.map((c) => c.type);
+  localStorage.setItem("activeCritters", JSON.stringify(types));
+}
+
+function restoreActiveCritters(): void {
+  try {
+    const saved = localStorage.getItem("activeCritters");
+    if (!saved) return;
+    const types: CritterTypeName[] = JSON.parse(saved);
+    for (const type of types) {
+      addCritter(type);
+    }
+  } catch {
+    // Ignore malformed data
+  }
+}
+
 function addCritter(type: CritterTypeName): void {
   if (manager.hasType(type)) return;
   const critter = manager.addCritter(type);
   addCritterElement(critter);
   notifyCritterState(type, true);
-
+  saveActiveCritters();
   updateTrayTitle();
 }
 
@@ -53,7 +71,7 @@ function removeCritter(type: CritterTypeName): void {
   if (!critter) return;
   removeCritterElement(critter.id);
   notifyCritterState(type, false);
-
+  saveActiveCritters();
   updateTrayTitle();
 }
 
@@ -64,7 +82,7 @@ function removeAll(): void {
   for (const type of activeTypes) {
     notifyCritterState(type, false);
   }
-
+  saveActiveCritters();
   updateTrayTitle();
 }
 
@@ -125,6 +143,7 @@ async function setupTauriEvents() {
 }
 
 setupTauriEvents();
+restoreActiveCritters();
 
 // Update management
 let updateReady = false;

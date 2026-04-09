@@ -1,4 +1,4 @@
-import { Critter, CritterBounds, CritterTypeName, CRITTER_TYPES, CRITTER_SIZE } from "./critter";
+import { Critter, CritterBounds, CritterTypeName, CRITTER_TYPES, CRITTER_SIZE, Edge } from "./critter";
 
 export class CritterManager {
   critters: Critter[] = [];
@@ -11,13 +11,75 @@ export class CritterManager {
 
   addCritter(type: CritterTypeName): Critter {
     const bounds = this.boundsProvider();
-    const margin = 40;
-    const x = margin + Math.random() * Math.max(bounds.maxX - bounds.minX - margin * 2, 1);
-    const y = margin + Math.random() * Math.max(bounds.maxY - bounds.minY - margin * 2, 1);
-    const critter = new Critter(type, x, y);
-    critter.snapToEdge(bounds);
+    let critter: Critter;
+
+    if (this.critters.length === 0) {
+      const margin = 40;
+      const x = margin + Math.random() * Math.max(bounds.maxX - bounds.minX - margin * 2, 1);
+      const y = margin + Math.random() * Math.max(bounds.maxY - bounds.minY - margin * 2, 1);
+      critter = new Critter(type, x, y);
+      critter.snapToEdge(bounds);
+    } else {
+      const { x, y, edge } = this.bestSpawnPoint(bounds);
+      critter = new Critter(type, x, y);
+      critter.edge = edge;
+    }
+
     this.critters.push(critter);
     return critter;
+  }
+
+  private bestSpawnPoint(bounds: CritterBounds): { x: number; y: number; edge: Edge } {
+    const { minX, minY, maxX, maxY } = bounds;
+    const w = maxX - minX;
+    const h = maxY - minY;
+    const perimeter = 2 * (w + h);
+    const steps = 100;
+
+    let bestX = minX;
+    let bestY = minY;
+    let bestEdge: Edge = "bottom";
+    let bestMinDist = -1;
+
+    for (let i = 0; i < steps; i++) {
+      const t = (i / steps) * perimeter;
+      let x: number, y: number;
+      let edge: Edge;
+
+      if (t < w) {
+        x = minX + t;
+        y = minY;
+        edge = "bottom";
+      } else if (t < w + h) {
+        x = maxX - CRITTER_SIZE;
+        y = minY + (t - w);
+        edge = "right";
+      } else if (t < 2 * w + h) {
+        x = maxX - CRITTER_SIZE - (t - w - h);
+        y = maxY - CRITTER_SIZE;
+        edge = "top";
+      } else {
+        x = minX;
+        y = maxY - CRITTER_SIZE - (t - 2 * w - h);
+        edge = "left";
+      }
+
+      let minDist = Infinity;
+      for (const critter of this.critters) {
+        const dx = x - critter.x;
+        const dy = y - critter.y;
+        minDist = Math.min(minDist, Math.sqrt(dx * dx + dy * dy));
+      }
+
+      if (minDist > bestMinDist) {
+        bestMinDist = minDist;
+        bestX = x;
+        bestY = y;
+        bestEdge = edge;
+      }
+    }
+
+    return { x: bestX, y: bestY, edge: bestEdge };
   }
 
   hasType(type: CritterTypeName): boolean {

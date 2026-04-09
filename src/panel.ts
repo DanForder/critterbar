@@ -17,11 +17,24 @@ const NAMES: Record<CritterType, string> = {
 };
 
 let activeTypes = new Set<CritterType>();
+let launchAtLogin = false;
 
 async function panelInvoke(command: string, args?: Record<string, unknown>): Promise<void> {
   try {
     const { invoke } = await import("@tauri-apps/api/core");
     await invoke(command, args);
+  } catch {
+    // Not in Tauri context
+  }
+}
+
+async function toggleLaunchAtLogin(): Promise<void> {
+  try {
+    const { invoke } = await import("@tauri-apps/api/core");
+    const next = !launchAtLogin;
+    await invoke("set_launch_at_login", { enabled: next });
+    launchAtLogin = next;
+    render();
   } catch {
     // Not in Tauri context
   }
@@ -75,6 +88,12 @@ function render(): void {
   const sep = document.createElement("hr");
   app.appendChild(sep);
 
+  const loginBtn = document.createElement("button");
+  loginBtn.className = launchAtLogin ? "btn active" : "btn";
+  loginBtn.textContent = launchAtLogin ? "✓ Launch at Login" : "Launch at Login";
+  loginBtn.onclick = () => toggleLaunchAtLogin();
+  app.appendChild(loginBtn);
+
   const footRow = document.createElement("div");
   footRow.className = "row";
 
@@ -103,8 +122,12 @@ function render(): void {
 async function init(): Promise<void> {
   try {
     const { invoke } = await import("@tauri-apps/api/core");
-    const active = await invoke<string[]>("get_active_critters");
+    const [active, loginEnabled] = await Promise.all([
+      invoke<string[]>("get_active_critters"),
+      invoke<boolean>("get_launch_at_login"),
+    ]);
     activeTypes = new Set(active as CritterType[]);
+    launchAtLogin = loginEnabled;
   } catch {
     // Not in Tauri context
   }
