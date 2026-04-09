@@ -1,6 +1,6 @@
 {
   "name": "critterbar",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "A macOS menu bar app with emoji critters that walk along your screen edges.",
   "type": "module",
   "scripts": {
