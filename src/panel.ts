@@ -19,11 +19,21 @@ const NAMES: Record<CritterType, string> = {
 let activeTypes = new Set<CritterType>();
 let launchAtLogin = false;
 let showNames = localStorage.getItem("showNames") === "true"; // default false
+let betaArtwork = localStorage.getItem("betaArtwork") === "true"; // default false
 
 async function panelInvoke(command: string, args?: Record<string, unknown>): Promise<void> {
   try {
     const { invoke } = await import("@tauri-apps/api/core");
     await invoke(command, args);
+  } catch {
+    // Not in Tauri context
+  }
+}
+
+async function emitBetaArtwork(): Promise<void> {
+  try {
+    const { invoke } = await import("@tauri-apps/api/core");
+    await invoke("emit_beta_artwork", { enabled: betaArtwork });
   } catch {
     // Not in Tauri context
   }
@@ -97,6 +107,17 @@ function render(): void {
   // Footer
   const sep = document.createElement("hr");
   app.appendChild(sep);
+
+  const artBtn = document.createElement("button");
+  artBtn.className = betaArtwork ? "btn active" : "btn";
+  artBtn.textContent = betaArtwork ? "✓ Beta Artwork" : "Beta Artwork";
+  artBtn.onclick = () => {
+    betaArtwork = !betaArtwork;
+    localStorage.setItem("betaArtwork", String(betaArtwork));
+    emitBetaArtwork();
+    render();
+  };
+  app.appendChild(artBtn);
 
   const namesBtn = document.createElement("button");
   namesBtn.className = showNames ? "btn active" : "btn";

@@ -167,14 +167,20 @@ async function setupTauriEvents() {
     listen<boolean>("show-names", (event) => {
       document.body.classList.toggle("hide-names", !event.payload);
     });
+    listen<boolean>("beta-artwork", (event) => {
+      document.body.classList.toggle("pixel-art", event.payload);
+    });
   } catch {
     // Not running in Tauri — that's fine
   }
 }
 
-// Apply saved show-names setting on startup (default: hidden)
+// Apply saved settings on startup
 if (localStorage.getItem("showNames") !== "true") {
   document.body.classList.add("hide-names");
+}
+if (localStorage.getItem("betaArtwork") === "true") {
+  document.body.classList.add("pixel-art");
 }
 
 setupTauriEvents();

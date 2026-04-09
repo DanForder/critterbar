@@ -213,9 +213,9 @@ test.describe("Critterbar", () => {
     await page.goto("/panel.html");
     await page.waitForLoadState("networkidle");
 
-    // 8 add buttons + Random + Add All + Show Names + Launch at Login + Remove All + Quit = 14
+    // 8 add buttons + Random + Add All + Beta Artwork + Show Names + Launch at Login + Remove All + Quit = 15
     const buttons = page.locator(".btn");
-    await expect(buttons).toHaveCount(14, { timeout: 3000 });
+    await expect(buttons).toHaveCount(15, { timeout: 3000 });
 
     // All 8 add buttons should be enabled (no active critters without Tauri)
     for (const type of ["cat", "dog", "bird", "rabbit", "hamster", "fox", "frog", "turtle"]) {

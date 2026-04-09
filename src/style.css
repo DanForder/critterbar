@@ -19,10 +19,14 @@ html, body {
   cursor: default;
 }
 
-.critter[data-edge="bottom"] { rotate: 180deg; }
-.critter[data-edge="right"]  { rotate: 270deg; }
-.critter[data-edge="top"]    { rotate: 0deg; }
-.critter[data-edge="left"]   { rotate: 90deg; }
+/* Emoji rotation — feet face the edge */
+.critter:not(.sprite)[data-edge="bottom"] { rotate: 180deg; }
+.critter:not(.sprite)[data-edge="right"]  { rotate: 270deg; }
+.critter:not(.sprite)[data-edge="top"]    { rotate: 0deg; }
+.critter:not(.sprite)[data-edge="left"]   { rotate: 90deg; }
+
+/* Sprite mode — no rotation, just flip horizontally based on direction */
+.critter.sprite { image-rendering: pixelated; }
 
 @keyframes sniff-wiggle {
   0%   { transform: translateX(0); }

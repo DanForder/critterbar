@@ -1,7 +1,58 @@
 import { Critter, CRITTER_SIZE } from "./critter";
+import { getSpriteFrameURL, hasSprite } from "./sprites";
 
 const critterElements = new Map<number, HTMLDivElement>();
 const nameElements = new Map<number, HTMLDivElement>();
+
+// Track walk animation frame per critter
+const walkFrameTimers = new Map<number, number>();
+const walkFrameState = new Map<number, boolean>(); // true = walk1, false = walk2
+
+const WALK_FRAME_INTERVAL = 0.25; // seconds per frame
+
+function isPixelArtEnabled(): boolean {
+  return document.body.classList.contains("pixel-art");
+}
+
+function applyVisual(el: HTMLDivElement, critter: Critter, deltaTime?: number): void {
+  if (isPixelArtEnabled() && hasSprite(critter.type)) {
+    // Determine which frame to show
+    let frame: "walk1" | "walk2" | "idle";
+    if (critter.state.kind === "sniffing") {
+      frame = "idle";
+    } else {
+      // Alternate walk frames
+      const timer = (walkFrameTimers.get(critter.id) ?? 0) + (deltaTime ?? 0);
+      walkFrameTimers.set(critter.id, timer);
+      if (timer >= WALK_FRAME_INTERVAL) {
+        walkFrameTimers.set(critter.id, 0);
+        walkFrameState.set(critter.id, !walkFrameState.get(critter.id));
+      }
+      frame = walkFrameState.get(critter.id) ? "walk1" : "walk2";
+    }
+
+    const url = getSpriteFrameURL(critter.type, frame, CRITTER_SIZE);
+    if (url) {
+      el.textContent = "";
+      el.style.backgroundImage = `url(${url})`;
+      el.style.backgroundSize = "contain";
+      el.style.backgroundRepeat = "no-repeat";
+      el.style.backgroundPosition = "center";
+      el.style.imageRendering = "pixelated";
+      el.classList.add("sprite");
+    }
+  } else {
+    // Emoji mode
+    if (el.classList.contains("sprite")) {
+      el.style.backgroundImage = "";
+      el.style.imageRendering = "";
+      el.classList.remove("sprite");
+    }
+    if (el.textContent !== critter.emoji) {
+      el.textContent = critter.emoji;
+    }
+  }
+}
 
 export function addCritterElement(critter: Critter): void {
   const el = document.createElement("div");
@@ -18,6 +69,8 @@ export function addCritterElement(critter: Critter): void {
   document.body.appendChild(el);
   critterElements.set(critter.id, el);
 
+  applyVisual(el, critter);
+
   // Separate name label (outside critter div — no inherited rotation or wiggle)
   const nameEl = document.createElement("div");
   nameEl.className = "critter-name";
@@ -27,7 +80,13 @@ export function addCritterElement(critter: Critter): void {
   nameElements.set(critter.id, nameEl);
 }
 
+let lastUpdateTime = 0;
+
 export function updateCritterElements(critters: Critter[]): void {
+  const now = performance.now() / 1000;
+  const deltaTime = lastUpdateTime ? now - lastUpdateTime : 1 / 60;
+  lastUpdateTime = now;
+
   for (const critter of critters) {
     const el = critterElements.get(critter.id);
     if (el) {
@@ -35,6 +94,7 @@ export function updateCritterElements(critters: Critter[]): void {
       el.style.top = `${critter.y}px`;
       el.dataset.edge = critter.edge;
       el.dataset.state = critter.state.kind;
+      applyVisual(el, critter, deltaTime);
     }
 
     const nameEl = nameElements.get(critter.id);
@@ -82,6 +142,8 @@ export function removeCritterElement(id: number): void {
     nameEl.remove();
     nameElements.delete(id);
   }
+  walkFrameTimers.delete(id);
+  walkFrameState.delete(id);
 }
 
 export function removeAllCritterElements(): void {
@@ -93,4 +155,6 @@ export function removeAllCritterElements(): void {
     el.remove();
   }
   nameElements.clear();
+  walkFrameTimers.clear();
+  walkFrameState.clear();
 }

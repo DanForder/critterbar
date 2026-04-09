@@ -138,6 +138,11 @@ fn emit_show_names(app: tauri::AppHandle, show: bool) {
 }
 
 #[tauri::command]
+fn emit_beta_artwork(app: tauri::AppHandle, enabled: bool) {
+    let _ = app.emit("beta-artwork", enabled);
+}
+
+#[tauri::command]
 fn resize_panel(app: tauri::AppHandle, height: u32) {
     if let Some(panel) = app.get_webview_window("panel") {
         let _ = panel.set_size(tauri::Size::Logical(tauri::LogicalSize {
@@ -160,6 +165,7 @@ pub fn run() {
             panel_action,
             resize_panel,
             emit_show_names,
+            emit_beta_artwork,
             set_update_menu_text,
             get_launch_at_login,
             set_launch_at_login,
